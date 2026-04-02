@@ -1,19 +1,288 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tea Production Process</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="西湖龙井六道传统手工制茶工艺，从采摘到炒制，每一步都关乎茶叶的最终品质。">
+  <title>工艺 · 西湖龙井</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <h1>Tea Production Process</h1>
-    <ol>
-        <li><strong>Harvesting:</strong> The first step involves picking the young tea leaves and buds during the right season to ensure quality.</li>
-        <li><strong>Withering:</strong> The freshly picked leaves are left to wither for several hours to reduce moisture content and enhance flavor.</li>
-        <li><strong>Pan-Firing:</strong> The withered leaves are then pan-fired to halt oxidation and preserve the green color.</li>
-        <li><strong>Shaping:</strong> The leaves are rolled or shaped to enhance their appearance and ensure even drying.</li>
-        <li><strong>Drying:</strong> The shaped leaves are dried to remove any remaining moisture and prevent spoilage.</li>
-        <li><strong>Sorting/Grading:</strong> Finally, the dried tea leaves are sorted and graded based on size and quality for packaging and selling.</li>
-    </ol>
+
+  <!-- 导航栏 -->
+  <nav class="nav" aria-label="主导航">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">西湖龙井</a>
+      <button class="nav__toggle" aria-label="切换菜单" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav__menu" role="list">
+        <li><a href="index.html" class="nav__link">首页</a></li>
+        <li><a href="about.html" class="nav__link">关于</a></li>
+        <li><a href="process.html" class="nav__link">工艺</a></li>
+        <li><a href="gallery.html" class="nav__link">茶样</a></li>
+        <li><a href="contact.html" class="nav__link">联系</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 页面标题 -->
+  <header class="page-hero page-hero--process">
+    <div class="page-hero__inner">
+      <span class="page-hero__label">PROCESS</span>
+      <h1 class="page-hero__title">制茶工艺</h1>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 工艺步骤 -->
+    <section class="process-section">
+      <div class="container text-center" style="margin-bottom: 3rem;">
+        <span class="section-label">六道工序</span>
+        <h2 class="section-title">从山场到茶杯</h2>
+        <p class="section-subtitle">每一步都关乎茶叶的最终品质，没有捷径，只有耐心与经验的积累。</p>
+      </div>
+
+      <div class="process-steps">
+
+        <!-- 采摘 -->
+        <article class="process-step fade-in">
+          <div class="process-step__visual">
+            <div class="process-step__placeholder">🍃</div>
+          </div>
+          <div class="process-step__info">
+            <span class="process-step__num">01</span>
+            <h2 class="process-step__title">采摘</h2>
+            <p class="process-step__desc">
+              采摘是制茶的第一道，也是最考验眼力与耐心的一道。
+              龙井茶只采一芽一叶或一芽二叶，
+              清明前后，采茶女于晨露未晞时上山，
+              以拇指与食指指尖轻轻折断嫩芽，不可伤及茶叶。
+            </p>
+            <p class="process-step__detail">
+              一位熟练采茶女一天仅能采摘约500克鲜叶，
+              加工后只得约100克干茶。
+            </p>
+          </div>
+        </article>
+
+        <!-- 摊晾 -->
+        <article class="process-step fade-in">
+          <div class="process-step__visual">
+            <div class="process-step__placeholder">☀️</div>
+          </div>
+          <div class="process-step__info">
+            <span class="process-step__num">02</span>
+            <h2 class="process-step__title">摊晾</h2>
+            <p class="process-step__desc">
+              鲜叶采回后须立即摊放于竹匾之上，
+              置于通风阴凉处自然晾干，时间约为六至十二小时。
+              此步骤使叶片失去部分水分，青草气散逸，
+              为后续炒制奠定基础。
+            </p>
+            <p class="process-step__detail">
+              摊晾时间与当日气温、湿度密切相关，
+              需凭经验判断，不可一概而论。
+            </p>
+          </div>
+        </article>
+
+        <!-- 青锅 -->
+        <article class="process-step fade-in">
+          <div class="process-step__visual">
+            <div class="process-step__placeholder">🔥</div>
+          </div>
+          <div class="process-step__info">
+            <span class="process-step__num">03</span>
+            <h2 class="process-step__title">青锅</h2>
+            <p class="process-step__desc">
+              将摊晾后的鲜叶投入约180℃的铁锅，
+              以双掌反复进行抖、带、甩等手法，
+              迅速钝化酶活性，固定绿色，
+              同时蒸发水分，使叶片初步成型。
+              此步骤历时约15分钟。
+            </p>
+            <p class="process-step__detail">
+              炒制全程不使用任何工具，纯以掌心感知锅温与叶片状态。
+            </p>
+          </div>
+        </article>
+
+        <!-- 回潮 -->
+        <article class="process-step fade-in">
+          <div class="process-step__visual">
+            <div class="process-step__placeholder">🌫️</div>
+          </div>
+          <div class="process-step__info">
+            <span class="process-step__num">04</span>
+            <h2 class="process-step__title">回潮</h2>
+            <p class="process-step__desc">
+              青锅完成后，将茶叶摊放于竹匾，
+              用布覆盖，使茶叶在自身余温中回软，
+              时间约一至两小时。
+              经过回潮，叶片内部水分重新分布，
+              质地变柔，便于辉锅时进一步整形。
+            </p>
+            <p class="process-step__detail">
+              回潮不足，辉锅时叶片易断；过度，则影响色泽。
+            </p>
+          </div>
+        </article>
+
+        <!-- 辉锅 -->
+        <article class="process-step fade-in">
+          <div class="process-step__visual">
+            <div class="process-step__placeholder">✋</div>
+          </div>
+          <div class="process-step__info">
+            <span class="process-step__num">05</span>
+            <h2 class="process-step__title">辉锅</h2>
+            <p class="process-step__desc">
+              辉锅是龙井茶制作中最核心的工序，
+              锅温约为60至70℃，炒茶师以抓、推、磨、压四式手法，
+              将茶叶在锅壁上反复摩擦整形，
+              历时40至60分钟，直至茶叶达到扁平光滑、色泽均一。
+            </p>
+            <p class="process-step__detail">
+              辉锅手法需数年乃至数十年方能精熟，
+              是区分高品质龙井的关键所在。
+            </p>
+          </div>
+        </article>
+
+        <!-- 分筛 -->
+        <article class="process-step fade-in">
+          <div class="process-step__visual">
+            <div class="process-step__placeholder">🎋</div>
+          </div>
+          <div class="process-step__info">
+            <span class="process-step__num">06</span>
+            <h2 class="process-step__title">分筛</h2>
+            <p class="process-step__desc">
+              辉锅完成后，以竹筛对成茶进行分级筛选，
+              按照芽叶大小、完整度、色泽均匀度分档，
+              剔除碎末与黄片，
+              确保每批次茶叶品质一致、形态匀整。
+            </p>
+            <p class="process-step__detail">
+              分筛后密封低温储存，以锡罐或铝罐为佳，
+              避光避异味，方能长久保持香气。
+            </p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 采茶日志 -->
+    <section class="harvest-log">
+      <div class="container">
+        <div class="text-center">
+          <span class="section-label">采茶日志</span>
+          <h2 class="section-title">2025年春茶记录</h2>
+        </div>
+        <div class="harvest-log__entries">
+          <article class="log-entry fade-in">
+            <span class="log-entry__date">2025 · 03 · 25</span>
+            <h3 class="log-entry__title">狮峰头采</h3>
+            <p class="log-entry__text">
+              今晨五时上山，雾气未散。狮峰山顶气温仅8℃，
+              芽头细小而嫩绿，产量极少，但香气已令人心旷神怡。
+              今日头采约得鲜叶3.2公斤。
+            </p>
+          </article>
+          <article class="log-entry fade-in fade-in-delay-1">
+            <span class="log-entry__date">2025 · 04 · 01</span>
+            <h3 class="log-entry__title">明前茶盛采期</h3>
+            <p class="log-entry__text">
+              连续晴天后，芽叶萌发旺盛，是一年中最繁忙的时段。
+              村中老幼齐上阵，自清晨至午后连续采摘，
+              当日鲜叶产量达历年同期最高水平。
+            </p>
+          </article>
+          <article class="log-entry fade-in fade-in-delay-2">
+            <span class="log-entry__date">2025 · 04 · 18</span>
+            <h3 class="log-entry__title">雨前收尾</h3>
+            <p class="log-entry__text">
+              谷雨前最后一轮采摘，叶片稍大，滋味更为醇厚，
+              带有明显的板栗香。今年雨前茶整体品质上乘，
+              茶农对今年的收成颇为满意。
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 制茶人 -->
+    <section class="artisan">
+      <div class="container">
+        <div class="artisan__grid">
+          <div class="artisan__photo fade-in">
+            <img src="images/artisan.jpg" alt="制茶师傅" loading="lazy">
+          </div>
+          <div class="fade-in fade-in-delay-1">
+            <span class="section-label">制茶人</span>
+            <h2 class="section-title">张建国师傅</h2>
+            <blockquote class="artisan__quote">
+              "炒了四十年的茶，每年春天仍会紧张。
+              因为茶叶是活的，天气是变的，
+              手感是唯一能够信任的东西。"
+            </blockquote>
+            <p class="about-intro__body">
+              张建国，龙井村人，自幼随父学习炒茶，
+              至今已从事手工炒制四十余年。
+              曾获浙江省非物质文化遗产传承人称号，
+              现每年春茶季亲自主导狮峰山场的炒制工作。
+            </p>
+            <p class="artisan__name" style="margin-top: 1.5rem;">张建国</p>
+            <p class="artisan__role">非物质文化遗产传承人 · 龙井村</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">西湖龙井</span>
+          <p class="footer__tagline">
+            产地 · 时间 · 手工<br>
+            一茶一山场，皆是自然之馈赠。
+          </p>
+        </div>
+        <nav class="footer__nav" aria-label="页脚导航">
+          <h4>导航</h4>
+          <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="about.html">关于</a></li>
+            <li><a href="process.html">工艺</a></li>
+            <li><a href="gallery.html">茶样</a></li>
+            <li><a href="contact.html">联系</a></li>
+          </ul>
+        </nav>
+        <nav class="footer__nav" aria-label="关注我们">
+          <h4>关注我们</h4>
+          <ul>
+            <li><a href="#">微信公众号</a></li>
+            <li><a href="#">微博</a></li>
+            <li><a href="#">小红书</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 西湖龙井。保留所有权利。</span>
+        <span>杭州市西湖区</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
