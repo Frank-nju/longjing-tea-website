@@ -1,26 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap');
+
 :root {
-  /* Color Variables */
-  --color-primary: #3498db;
-  --color-secondary: #2ecc71;
-  --color-accent: #e74c3c;
-  --color-background: #ecf0f1;
-  --color-text: #2c3e50;
+  /* ── 主色系 ── */
+  --color-tea-brown: #6B5B47;        /* 茶褐色 - 主色 */
+  --color-tea-brown-light: #8C7B68;  /* 茶褐色浅 */
+  --color-tea-brown-dark: #4A3F32;   /* 茶褐色深 */
+  --color-rice-white: #F5F1E8;       /* 米白色 - 背景 */
+  --color-rice-white-warm: #EDE8DB;  /* 米白色偏暖 */
+  --color-slate-gray: #7A8B8F;       /* 青灰色 - 辅助 */
+  --color-slate-gray-light: #A3B1B4; /* 青灰色浅 */
+  --color-ink-green: #4A5E52;        /* 墨绿色 - 点缀 */
+  --color-clay-red: #9E5A3D;         /* 陶土红 - 点缀 */
+  --color-ink-dark: #2C2416;         /* 浓墨色 - 正文 */
+  --color-ink-light: #5A4E42;        /* 淡墨色 - 次要文字 */
 
-  /* Typography Variables */
-  --font-family-base: 'Helvetica Neue', Arial, sans-serif;
-  --font-size-base: 16px;
-  --font-size-large: 20px;
-  --font-size-small: 14px;
+  /* ── 背景 ── */
+  --bg-main: var(--color-rice-white);
+  --bg-section: #FDFAF3;
+  --bg-section-alt: var(--color-rice-white-warm);
+  --bg-card: #FFFFFF;
+  --bg-nav: rgba(245, 241, 232, 0.95);
+  --bg-footer: var(--color-tea-brown-dark);
 
-  /* Spacing Variables */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 32px;
-  --spacing-xl: 64px;
+  /* ── 文字 ── */
+  --text-primary: var(--color-ink-dark);
+  --text-secondary: var(--color-ink-light);
+  --text-accent: var(--color-tea-brown);
+  --text-light: var(--color-slate-gray);
+  --text-on-dark: #F5F1E8;
 
-  /* Shadow Variables */
-  --shadow-small: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 2px 5px rgba(0, 0, 0, 0.15);
-  --shadow-large: 0 4px 10px rgba(0, 0, 0, 0.2);
+  /* ── 边框 ── */
+  --border-color: rgba(107, 91, 71, 0.2);
+  --border-color-light: rgba(107, 91, 71, 0.1);
+
+  /* ── 字体 ── */
+  --font-serif: 'Noto Serif SC', 'Songti SC', '宋体', Georgia, serif;
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-md: 1.125rem;   /* 18px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px */
+  --font-size-2xl: 2rem;      /* 32px */
+  --font-size-3xl: 2.5rem;    /* 40px */
+  --font-size-4xl: 3.5rem;    /* 56px */
+  --line-height-tight: 1.4;
+  --line-height-base: 1.8;
+  --line-height-loose: 2.2;
+
+  /* ── 间距 ── */
+  --spacing-xs: 0.25rem;   /* 4px  */
+  --spacing-sm: 0.5rem;    /* 8px  */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2.5rem;    /* 40px */
+  --spacing-2xl: 4rem;     /* 64px */
+  --spacing-3xl: 6rem;     /* 96px */
+  --spacing-section: 8rem; /* 128px */
+
+  /* ── 布局 ── */
+  --container-max: 1100px;
+  --container-narrow: 720px;
+  --nav-height: 70px;
+
+  /* ── 圆角 ── */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  /* ── 阴影 ── */
+  --shadow-sm: 0 1px 4px rgba(44, 36, 22, 0.06);
+  --shadow-md: 0 4px 16px rgba(44, 36, 22, 0.10);
+  --shadow-lg: 0 8px 32px rgba(44, 36, 22, 0.14);
+
+  /* ── 过渡 ── */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.35s ease;
+  --transition-slow: 0.6s ease;
 }

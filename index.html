@@ -1,50 +1,134 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <title>西湖龙井</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="西湖龙井——产地·时间·手工，中国最负盛名的绿茶，来自浙江杭州西湖之滨。">
+  <title>西湖龙井 · 自然之味</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <header>
-        <section class="hero">
-            <h1>西湖龙井</h1>
-            <h2>产地 · 时间 · 手工</h2>
-            <p>在这里介绍西湖龙井的美丽与独特。传统的手工制作工艺，赋予了它非凡的品质。</p>
-            <img src="placeholder.jpg" alt="西湖龙井茶" />
-        </section>
-    </header>
 
-    <main>
-        <section class="features">
-            <div class="feature">
-                <h3>产地</h3>
-                <p>西湖龙井茶的故乡在中国浙江省杭州市，为何这个地方如此独特？</p>
-            </div>
-            <div class="feature">
-                <h3>时间</h3>
-                <p>西湖龙井的采摘时间与茶叶生长的季节紧密相连，春天地优于其他季节。</p>
-            </div>
-            <div class="feature">
-                <h3>手工</h3>
-                <p>每一片茶叶都经过精心挑选和手工制作，保证最佳的口感和香气。</p>
-            </div>
-        </section>
+  <!-- 导航栏 -->
+  <nav class="nav" aria-label="主导航">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">西湖龙井</a>
+      <button class="nav__toggle" aria-label="切换菜单" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav__menu" role="list">
+        <li><a href="index.html" class="nav__link">首页</a></li>
+        <li><a href="about.html" class="nav__link">关于</a></li>
+        <li><a href="process.html" class="nav__link">工艺</a></li>
+        <li><a href="gallery.html" class="nav__link">茶样</a></li>
+        <li><a href="contact.html" class="nav__link">联系</a></li>
+      </ul>
+    </div>
+  </nav>
 
-        <section class="quote">
-            <blockquote>
-                <p>“茶是心灵的寄托，一杯西湖龙井让人回到那片山水之间。”</p>
-            </blockquote>
-        </section>
-    </main>
+  <!-- 英雄区域 -->
+  <section class="hero" aria-label="首页横幅">
+    <div class="hero__content">
+      <span class="hero__label">LONGJING · DRAGON WELL TEA</span>
+      <h1 class="hero__title">西湖龙井</h1>
+      <p class="hero__subtitle">产地 · 时间 · 手工</p>
+      <p class="hero__desc">
+        一杯龙井，藏着西湖的晨雾、谷雨前的嫩芽，<br>
+        与炒茶人掌心的温度。
+      </p>
+      <a href="#features" class="hero__scroll" aria-label="向下滚动">向下</a>
+    </div>
+  </section>
 
-    <footer>
-        <p>© 2026 Frank-nju. All rights reserved.</p>
-    </footer>
+  <!-- 三要素特性 -->
+  <section class="features" id="features" aria-labelledby="features-title">
+    <div class="container text-center" style="margin-bottom: 3rem;">
+      <span class="section-label">三大核心</span>
+      <h2 class="section-title" id="features-title">为何是西湖龙井</h2>
+    </div>
+    <div class="features__grid">
+      <article class="feature-item fade-in">
+        <span class="feature-item__num">01</span>
+        <h3 class="feature-item__title">产地</h3>
+        <p class="feature-item__text">
+          西湖龙井仅产于杭州西湖周边四百余亩核心产区。
+          狮峰、龙井、云栖、虎跑四地，
+          独特的小气候与红壤，
+          赋予茶叶无可复制的山野之气。
+        </p>
+      </article>
+      <article class="feature-item fade-in fade-in-delay-1">
+        <span class="feature-item__num">02</span>
+        <h3 class="feature-item__title">时间</h3>
+        <p class="feature-item__text">
+          清明前三日，芽头初萌，为一年中最珍贵的时窗。
+          明前茶氨基酸含量最高，
+          滋味鲜醇，香气幽远，
+          错过一天，滋味便已不同。
+        </p>
+      </article>
+      <article class="feature-item fade-in fade-in-delay-2">
+        <span class="feature-item__num">03</span>
+        <h3 class="feature-item__title">手工</h3>
+        <p class="feature-item__text">
+          炒制全程以掌心温度感知火候，
+          抖、带、挤、甩、抓、推、磨、压——
+          八式手法，历经数十年积累，
+          方能赋予茶叶那片扁平光润的形态。
+        </p>
+      </article>
+    </div>
+  </section>
 
-    <script src="js/main.js"></script>
+  <!-- 引言 -->
+  <section class="quote-section" aria-label="诗句引用">
+    <div class="container">
+      <blockquote>
+        "淡中有真味，常里识英雄。"
+      </blockquote>
+      <cite>——陆羽《茶经》</cite>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="footer__logo">西湖龙井</span>
+          <p class="footer__tagline">
+            产地 · 时间 · 手工<br>
+            一茶一山场，皆是自然之馈赠。
+          </p>
+        </div>
+        <nav class="footer__nav" aria-label="页脚导航">
+          <h4>导航</h4>
+          <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="about.html">关于</a></li>
+            <li><a href="process.html">工艺</a></li>
+            <li><a href="gallery.html">茶样</a></li>
+            <li><a href="contact.html">联系</a></li>
+          </ul>
+        </nav>
+        <nav class="footer__nav" aria-label="关注我们">
+          <h4>关注我们</h4>
+          <ul>
+            <li><a href="#">微信公众号</a></li>
+            <li><a href="#">微博</a></li>
+            <li><a href="#">小红书</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 西湖龙井。保留所有权利。</span>
+        <span>杭州市西湖区</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
