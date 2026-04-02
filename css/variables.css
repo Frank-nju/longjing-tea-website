@@ -1,0 +1,26 @@
+:root {
+  /* Color Variables */
+  --color-primary: #3498db;
+  --color-secondary: #2ecc71;
+  --color-accent: #e74c3c;
+  --color-background: #ecf0f1;
+  --color-text: #2c3e50;
+
+  /* Typography Variables */
+  --font-family-base: 'Helvetica Neue', Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-large: 20px;
+  --font-size-small: 14px;
+
+  /* Spacing Variables */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 32px;
+  --spacing-xl: 64px;
+
+  /* Shadow Variables */
+  --shadow-small: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 2px 5px rgba(0, 0, 0, 0.15);
+  --shadow-large: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
