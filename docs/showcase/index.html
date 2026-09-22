@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#05090f" />
+  <title>Executable Film — When a Film Becomes a Program</title>
+  <meta name="description" content="从一部五分钟的实时 Titanic 电影，逆向出一种可执行、可寻址、可重新导演的 AI 电影制作范式。" />
+  <style>
+:root{
+  --bg:#05090f;--bg2:#08111b;--ink:#f3f0e7;--muted:#9aa7b3;--line:rgba(255,255,255,.13);
+  --ice:#b9d9e6;--blue:#68b4d5;--cyan:#79f1e4;--warm:#e6b46b;--red:#ef6a58;
+  --max:1280px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}.grain{position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.12;mix-blend-mode:soft-light;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E")}.cursor-glow{position:fixed;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(80,183,221,.11),transparent 62%);transform:translate(-50%,-50%);filter:blur(10px)}
+.topbar{position:fixed;z-index:80;top:0;left:0;right:0;height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(3,7,12,.8),rgba(3,7,12,.15));backdrop-filter:blur(16px)}.brand{font-size:12px;font-weight:800;letter-spacing:.18em;display:flex;gap:10px;align-items:center}.brand-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 24px var(--cyan)}.nav-links{display:flex;gap:24px;align-items:center;font-size:10px;font-weight:700;letter-spacing:.16em;color:#bdc6cd}.nav-links a:hover{color:white}.nav-cta{border:1px solid var(--line);padding:9px 14px;border-radius:30px}
+.panel{position:relative;min-height:100vh;padding:110px max(28px,calc((100vw - var(--max))/2));overflow:hidden}.section-no{position:relative;z-index:4;font-size:10px;letter-spacing:.24em;font-weight:800;color:#8fa1ad;text-transform:uppercase;margin-bottom:54px}.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#a7b4bd;font-weight:700}.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}.reveal.visible{opacity:1;transform:none}.delay-1{transition-delay:.12s}.delay-2{transition-delay:.24s}
+.hero{padding-top:0;padding-bottom:0;min-height:100svh;display:flex;align-items:flex-end}.hero-shot{position:absolute;inset:0;background:#03070c;overflow:hidden}.hero-image{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;filter:saturate(.74) contrast(1.14) brightness(.72);transform:scale(1.04);animation:heroDrift 18s ease-in-out infinite alternate}.hero-fallback{position:absolute;inset:0;background:radial-gradient(circle at 74% 19%,rgba(180,220,232,.28),transparent 8%),linear-gradient(#081622,#02050a 58%,#03080e 58%)}.hero-image:not([src=""])+.hero-fallback{z-index:-1}.moon{position:absolute;right:15%;top:12%;width:90px;height:90px;border-radius:50%;background:#b9ccd0;filter:blur(.3px);box-shadow:0 0 100px rgba(190,225,235,.28)}.hero-vignette{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,7,12,.92) 0%,rgba(3,7,12,.58) 42%,rgba(3,7,12,.1) 75%),linear-gradient(0deg,rgba(3,7,12,.94),transparent 45%)}.scanline{position:absolute;inset:0;opacity:.22;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.02) 4px);mix-blend-mode:overlay}.hero-copy{position:relative;z-index:4;max-width:1050px;padding-bottom:120px}.eyebrow{font-size:11px;letter-spacing:.25em;color:#b7c5cd;font-weight:800;margin-bottom:26px}.hero h1{font-size:clamp(54px,8.5vw,132px);line-height:.83;letter-spacing:-.065em;margin:0;max-width:1100px;font-weight:850}.hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1px rgba(220,239,246,.58)}.lede{font-size:clamp(16px,1.8vw,23px);line-height:1.55;max-width:720px;color:#c5cbd0;margin:38px 0 28px}.lede strong{color:#fff}.hero-actions,.engine-actions{display:flex;gap:12px;flex-wrap:wrap}.primary,.ghost{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:2px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.primary{background:#edf6f8;color:#081018}.ghost{border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.15);backdrop-filter:blur(10px)}.hero-meta{position:absolute;z-index:4;right:32px;bottom:33px;display:flex;gap:18px;font-size:9px;letter-spacing:.17em;color:#a6b1b9}.scroll-mark{position:absolute;z-index:4;right:32px;top:92px;writing-mode:vertical-rl;font-size:9px;letter-spacing:.25em;color:#87949d}@keyframes heroDrift{from{transform:scale(1.04) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,.8%,0)}}
+.statement-panel{background:radial-gradient(circle at 76% 32%,rgba(69,143,177,.16),transparent 30%),#071019}.statement{max-width:1050px}.statement h2,.director-panel h2,.audio-head h2,.compile-intro h2,.flow-copy h2,.model-title h2,.intuition-copy h2,.engine-head h2{font-size:clamp(40px,6vw,86px);line-height:.98;letter-spacing:-.045em;margin:8px 0 44px}.statement h2 span,.director-panel h2 span,.audio-head h2 span,.engine-head h2 span{color:var(--cyan)}.formula-card{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:42px}.formula-line{display:grid;grid-template-columns:130px 1fr;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.06);align-items:center}.formula-line:last-child{border:0}.formula-line small{font-size:9px;letter-spacing:.2em;color:#8295a0;font-weight:800}.formula-line code{font-family:"SFMono-Regular",Consolas,monospace;font-size:clamp(18px,3vw,34px);color:#d9eef3}.scrubber-demo{margin-top:70px}.scrub-stage{height:360px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.11);background:linear-gradient(#07111d,#02070c 57%,#07131b 58%)}.scrub-stars{position:absolute;inset:0;background-image:radial-gradient(circle,#fff 0 1px,transparent 1.3px);background-size:47px 47px;opacity:.15}.iceberg{position:absolute;right:10%;bottom:35%;width:110px;height:170px;background:linear-gradient(145deg,#d5edf0,#4b7582);clip-path:polygon(44% 0,64% 22%,85% 58%,100% 100%,0 100%,16% 66%);opacity:.68;filter:drop-shadow(0 0 30px rgba(134,224,237,.15))}.demo-sea{position:absolute;left:0;right:0;bottom:0;height:43%;background:repeating-radial-gradient(ellipse at 50% 0,rgba(113,191,211,.12) 0 2px,transparent 3px 22px),linear-gradient(#09202b,#02070b)}.depth-label{position:absolute;left:18px;top:18px;font-size:9px;letter-spacing:.15em;color:#93a5af}.depth-label strong{color:#eef8f9;margin-left:8px}.scrub-control{padding:24px 0}.scrub-control input{width:100%;accent-color:#77e9df}.ticks{display:flex;justify-content:space-between;font-size:8px;letter-spacing:.16em;color:#768a96;margin-top:8px}.scrubber-demo>p{color:#9eabb3;max-width:720px;line-height:1.7;font-size:14px}.scrubber-demo code{color:#dff9f5}
+.ship{position:absolute;width:360px;height:94px;transform-origin:55% 75%;transition:transform .18s linear, left .18s linear, bottom .18s linear}.ship:before{content:"";position:absolute;left:0;right:0;bottom:6px;height:30px;background:#0b1116;clip-path:polygon(0 28%,92% 0,100% 42%,93% 74%,10% 100%,2% 64%);box-shadow:0 0 0 1px rgba(255,255,255,.15) inset}.ship:after{content:"";position:absolute;left:63px;right:55px;bottom:36px;height:23px;background:#d8d9d3;clip-path:polygon(1% 35%,100% 0,96% 100%,0 100%);opacity:.9}.ship span,.ship i,.ship b,.ship em{position:absolute;bottom:58px;width:19px;height:47px;background:#b7834b;border-top:7px solid #121619;z-index:3;transform:skewX(-2deg)}.ship span{left:100px}.ship i{left:148px}.ship b{left:196px}.ship em{left:244px}.demo-ship{left:33%;bottom:31%;filter:drop-shadow(0 8px 16px rgba(0,0,0,.6));z-index:3}.ship-large{left:23%;bottom:24%;transform:scale(1.55);opacity:.55}.sea-lines{position:absolute;left:0;right:0;bottom:0;height:38%;background:repeating-radial-gradient(ellipse at 50% 0,rgba(130,200,218,.08) 0 2px,transparent 3px 24px)}
+.split-history{display:grid;grid-template-columns:1.1fr .9fr;gap:8vw;align-items:center;background:#ece8de;color:#0e171c}.split-history .section-no{color:#617078}.archive-photo{margin:0;position:relative}.archive-photo:after{content:"1912";position:absolute;right:-30px;bottom:52px;font-size:140px;font-weight:900;letter-spacing:-.08em;color:rgba(10,20,25,.08);z-index:0}.archive-photo img{width:100%;display:block;filter:grayscale(1) contrast(1.1);position:relative;z-index:1}.archive-photo figcaption{font-size:9px;color:#68747b;margin-top:10px;letter-spacing:.04em}.history-copy h2{font-size:clamp(56px,7vw,98px);line-height:.84;letter-spacing:-.065em;margin:0 0 30px}.history-copy p{font-size:18px;line-height:1.7;color:#40515a;max-width:520px}.quote{font-family:Georgia,serif;font-size:24px;border-left:2px solid #1c6f84;padding-left:20px;margin-top:36px;color:#102b34}
+.director-panel{background:linear-gradient(145deg,#05080c,#07131b 65%,#0b1c25)}.director-bg{position:absolute;right:-8vw;top:0;width:58vw;height:100%;opacity:.16;background-image:linear-gradient(90deg,transparent 49%,rgba(114,220,234,.35) 50%,transparent 51%),linear-gradient(transparent 49%,rgba(114,220,234,.22) 50%,transparent 51%);background-size:80px 80px;transform:perspective(700px) rotateY(-28deg)}.director-grid{display:grid;grid-template-columns:1fr 1fr;gap:7vw;align-items:center;position:relative;z-index:2}.shot-copy p:not(.kicker){color:#9daab2;max-width:600px;line-height:1.75}.camera-hud{border:1px solid rgba(121,241,228,.34);padding:12px;background:rgba(3,9,14,.7);box-shadow:0 0 70px rgba(69,196,204,.07);backdrop-filter:blur(14px)}.hud-header{display:flex;justify-content:space-between;font-size:9px;letter-spacing:.2em;color:#7be8df;margin:3px 4px 12px}.hud-frame{height:330px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:linear-gradient(#07121d 0 62%,#071820 62%)}.reticle{position:absolute;left:50%;top:50%;width:65px;height:65px;border:1px solid rgba(123,232,223,.35);transform:translate(-50%,-50%)}.reticle:before,.reticle:after{content:"";position:absolute;background:rgba(123,232,223,.35)}.reticle:before{left:50%;top:-80px;width:1px;height:225px}.reticle:after{top:50%;left:-130px;width:325px;height:1px}.wire-ship{left:5%;bottom:29%;transform:scale(.84);filter:grayscale(1) brightness(1.8);opacity:.55}.horizon{position:absolute;left:0;right:0;bottom:37%;border-top:1px solid rgba(119,233,224,.18)}.hud-specs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 3px 3px}.hud-specs div{border-right:1px solid rgba(255,255,255,.08)}.hud-specs div:last-child{border:0}.hud-specs small{display:block;font-size:8px;letter-spacing:.15em;color:#6f858f}.hud-specs strong{display:block;margin-top:5px;font-family:monospace;font-size:15px;color:#dffbf7}
+.audio-panel{background:#091016}.audio-head{max-width:1000px}.scoreviz{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0 8px;margin-top:48px;overflow:hidden}.score-row{position:relative;height:66px;border-bottom:1px solid rgba(255,255,255,.05)}.score-row:last-child{border:0}.score-row>span{position:absolute;left:0;top:10px;font-size:9px;letter-spacing:.18em;color:#7e919d}.score-row i{position:absolute;left:var(--x);width:var(--w);top:27px;height:12px;background:linear-gradient(90deg,#26616e,#69cdbd);opacity:.78}.score-row b{position:absolute;left:var(--x);top:24px;width:2px;height:26px;background:#efa768;box-shadow:0 0 22px rgba(239,167,104,.45)}.score-playhead{position:absolute;left:52%;top:0;bottom:0;width:1px;background:#fff;box-shadow:0 0 20px white;animation:playhead 7s linear infinite}.score-playhead:before{content:"";position:absolute;top:0;left:-4px;width:9px;height:9px;background:#fff;transform:rotate(45deg)}@keyframes playhead{0%{left:5%}100%{left:96%}}.audio-points{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.audio-points div{padding:25px 0;border-right:1px solid var(--line)}.audio-points div:last-child{border:0}.audio-points strong{font-size:10px;color:#75929d;margin-right:15px}.audio-points span{font-family:monospace;font-size:12px;color:#c0d3d8}
+.compile-panel{background:#eef0eb;color:#101517}.compile-panel .section-no{color:#667176}.compile-intro{display:grid;grid-template-columns:1fr 1fr;gap:7vw}.compile-intro h2{font-size:clamp(38px,5vw,70px);color:#49555a}.compile-intro h2 span{color:#141b1e}.compile-intro .accent{color:#166f78}.compile-intro .accent span{color:#0a2e31}.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:30px;align-items:center;margin-top:70px}.compare-card{min-height:370px;border:1px solid rgba(10,20,25,.14);padding:24px;position:relative}.compare-card header{font-size:10px;letter-spacing:.2em;font-weight:900}.compare-card.muted{background:#e3e5e0;color:#657176}.compare-card.hot{background:#071318;color:#eaf6f5;box-shadow:0 20px 70px rgba(15,88,95,.18)}.gray-scene{height:220px;position:relative;margin:28px 0;border:1px dashed rgba(20,30,35,.22);background:repeating-linear-gradient(0deg,transparent 0 27px,rgba(20,30,35,.05) 28px),repeating-linear-gradient(90deg,transparent 0 27px,rgba(20,30,35,.05) 28px)}.gray-scene i{position:absolute;width:70px;height:70px;background:#b9bfbb;border:1px solid #919b97}.gray-scene i:nth-child(1){left:14%;top:30%}.gray-scene i:nth-child(2){left:48%;top:18%;height:105px}.gray-scene i:nth-child(3){right:12%;bottom:13%;width:95px;height:48px}.cam-icon{position:absolute;left:8%;bottom:7%;font-size:36px;color:#5c696e}.compare-card ul{list-style:none;padding:0;margin:0;display:flex;gap:8px;flex-wrap:wrap}.compare-card li{font-size:9px;letter-spacing:.12em;text-transform:uppercase;border:1px solid currentColor;padding:7px 9px;opacity:.72}.arrow{font-size:34px;color:#607278}.layers{height:220px;display:flex;align-items:center;justify-content:center;position:relative;margin:28px 0}.layers span{position:absolute;border:1px solid rgba(115,240,225,.34);padding:10px 16px;font-family:monospace;font-size:10px;background:rgba(6,22,26,.86);box-shadow:0 0 30px rgba(61,220,202,.04)}.layers span:nth-child(1){transform:translate(-120px,-65px)}.layers span:nth-child(2){transform:translate(15px,-82px)}.layers span:nth-child(3){transform:translate(130px,-35px)}.layers span:nth-child(4){transform:translate(-115px,34px)}.layers span:nth-child(5){transform:translate(5px,5px)}.layers span:nth-child(6){transform:translate(118px,65px)}.layers span:nth-child(7){transform:translate(-12px,80px)}
+.compilation-flow{background:radial-gradient(circle at 50% 45%,rgba(36,119,130,.18),transparent 28%),#041014}.flow-copy{max-width:950px}.flow-copy strong{color:var(--cyan)}.pipeline{display:grid;grid-template-columns:1fr 60px 1fr 60px 1.3fr 60px 1fr;align-items:center;margin-top:70px}.pipe-node{min-height:170px;border:1px solid rgba(255,255,255,.13);padding:22px;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(3,12,16,.6)}.pipe-node small{color:#68828a;margin-bottom:auto}.pipe-node strong{font-size:18px;letter-spacing:.05em}.pipe-node span{font-size:11px;color:#7f949b;margin-top:7px}.pipe-node.active{border-color:rgba(114,241,226,.48);box-shadow:0 0 50px rgba(82,228,211,.06);background:rgba(8,37,40,.55)}.pipe-node.active strong{color:#8ef4e8}.pipe-line{height:1px;background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(124,235,223,.7),rgba(255,255,255,.1))}.data-ribbon{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}.data-ribbon span{border:1px solid rgba(255,255,255,.1);padding:8px 10px;font-size:9px;letter-spacing:.15em;color:#9fb2b8}
+.model-panel{background:#e9e5dc;color:#101517}.model-panel .section-no{color:#68777c}.model-title{display:grid;grid-template-columns:1.15fr .85fr;align-items:end;gap:8vw}.model-title h2{font-size:clamp(48px,7vw,98px)}.model-title p{font-size:18px;line-height:1.65;color:#45545a;padding-bottom:47px}.capability-orbit{height:620px;position:relative;margin-top:40px}.orbit-center{position:absolute;left:50%;top:50%;width:210px;height:210px;border-radius:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;background:#081216;color:white;box-shadow:0 20px 80px rgba(0,0,0,.18)}.orbit-center strong{text-align:center;font-size:25px;letter-spacing:-.03em}.orbit-center span{font-size:9px;color:#7eeadf;letter-spacing:.2em;margin-top:10px}.orb{position:absolute;font-size:9px;letter-spacing:.13em;font-weight:800;text-align:center;color:#34464d}.orb:before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:#197986;transform:translate(-50%,-50%);z-index:-1;box-shadow:0 0 0 18px rgba(25,121,134,.08)}.o1{left:15%;top:15%}.o2{left:45%;top:6%}.o3{right:13%;top:20%}.o4{right:7%;top:52%}.o5{right:23%;bottom:13%}.o6{left:44%;bottom:4%}.o7{left:13%;bottom:19%}.o8{left:6%;top:50%}.model-panel blockquote{font-family:Georgia,serif;font-size:clamp(28px,4vw,54px);text-align:center;margin:0;color:#163a42}
+.intuition-panel{background:#07090c}.intuition-copy{max-width:930px}.intuition-copy p{font-size:17px;color:#95a1a8;line-height:1.75;max-width:780px}.latent-map{display:grid;grid-template-columns:repeat(9,auto);align-items:center;justify-content:center;gap:20px;margin:85px 0 35px}.latent-map div{border:1px solid rgba(255,255,255,.15);padding:16px 19px;font-size:10px;letter-spacing:.15em}.latent-map i{font-style:normal;color:#64d5cd}.term{text-align:center;font-family:monospace;color:#76e3db;letter-spacing:.14em;font-size:12px}.term span{color:#7a8c94}
+.artifact-panel{background:linear-gradient(180deg,#061017,#091923)}.artifact-grid{display:grid;grid-template-columns:1fr 170px 1fr;align-items:center;gap:20px;min-height:460px}.source-tree{border:1px solid var(--line);padding:27px;background:rgba(0,0,0,.17)}.tree-title{font-size:9px;color:#6f8793;letter-spacing:.18em;margin-bottom:22px}.source-tree code{display:block;font-family:monospace;padding:7px 0;color:#b7d1d7}.source-tree code:nth-child(3),.source-tree code:nth-child(5){color:#72e1d6}.build-arrow{text-align:center}.build-arrow span{display:block;font-size:9px;letter-spacing:.18em;color:#7d919a}.build-arrow i{display:block;font-style:normal;font-size:54px;color:#5acabe}.artifact-file{text-align:center}.file-icon{width:190px;height:240px;margin:auto;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#f1f5f2,#a9c7c9);color:#11252a;font-size:35px;font-weight:900;clip-path:polygon(0 0,74% 0,100% 20%,100% 100%,0 100%);box-shadow:0 25px 70px rgba(0,0,0,.2)}.artifact-file strong{display:block;margin-top:20px;font-family:monospace}.artifact-file span{display:block;color:#778e98;margin-top:5px;font-size:11px}.exe-line{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:25px;padding-top:28px;font-size:13px}.exe-line b{color:#6ad8ce}.exe-line em{font-style:normal;color:#738791;font-family:monospace;font-size:11px}
+.engine-panel{background:#ece9df;color:#11181c}.engine-panel .section-no{color:#66757b}.engine-head{display:grid;grid-template-columns:1fr .6fr;align-items:end;gap:8vw}.engine-head h2{font-size:clamp(60px,9vw,132px);line-height:.78;color:#101719}.engine-head h2 span{color:#126d77}.engine-head p{font-size:16px;line-height:1.65;color:#495a60;padding-bottom:40px}.terminal{background:#071014;color:#cde0df;border-radius:8px;box-shadow:0 25px 80px rgba(0,0,0,.18);overflow:hidden;margin:30px 0}.terminal-bar{height:42px;background:#0c171c;display:flex;align-items:center;padding:0 14px;gap:7px;border-bottom:1px solid rgba(255,255,255,.07)}.terminal-bar i{width:8px;height:8px;border-radius:50%;background:#56666c}.terminal-bar i:first-child{background:#d26959}.terminal-bar i:nth-child(2){background:#c8a757}.terminal-bar i:nth-child(3){background:#5ba377}.terminal-bar span{margin-left:auto;margin-right:auto;font-size:9px;color:#71868e;letter-spacing:.1em}.terminal pre{margin:0;padding:30px;font-family:"SFMono-Regular",Consolas,monospace;font-size:14px;line-height:1.75;overflow:auto}.terminal b{color:#74e4d8}.terminal .dim{color:#607780}.engine-panel .ghost{border-color:rgba(0,0,0,.18);color:#1c343a}.engine-panel .primary{background:#102226;color:#ecf7f5}
+.finale{min-height:100svh;background:#020509;display:flex;align-items:center}.finale-bg{position:absolute;inset:0;overflow:hidden;background:radial-gradient(circle at 70% 25%,rgba(137,199,216,.13),transparent 17%),linear-gradient(#05101a,#010306 60%)}.finale-bg:after{content:"";position:absolute;left:0;right:0;bottom:0;height:37%;background:repeating-radial-gradient(ellipse at 50% 0,rgba(106,190,211,.08) 0 2px,transparent 3px 24px)}.final-ship{right:5%;bottom:27%;transform:scale(2.2) rotate(5deg);opacity:.2;filter:grayscale(1) brightness(1.5)}.finale-copy{position:relative;z-index:3;max-width:1000px}.finale h2{font-size:clamp(70px,11vw,160px);line-height:.75;letter-spacing:-.07em;margin:0}.finale h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1px rgba(199,231,236,.48)}.finale-copy>p{max-width:640px;color:#9aa8af;font-size:18px;line-height:1.7;margin-top:40px}.manifesto{font-family:monospace;margin-top:40px;color:#69d9d0;font-size:11px;letter-spacing:.07em;line-height:1.8}.finale footer{position:absolute;left:max(28px,calc((100vw - var(--max))/2));right:max(28px,calc((100vw - var(--max))/2));bottom:24px;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:14px;font-size:9px;letter-spacing:.15em;color:#687b83}
+@media(max-width:850px){.topbar{padding:0 18px}.nav-links a:not(.nav-cta){display:none}.panel{padding:94px 22px}.hero-copy{padding-bottom:135px}.hero h1{font-size:15vw}.hero-meta{left:22px;right:auto;bottom:34px;flex-wrap:wrap;max-width:75%}.scroll-mark{display:none}.formula-line{grid-template-columns:1fr;gap:8px}.split-history,.director-grid,.compile-intro,.model-title,.engine-head{grid-template-columns:1fr}.split-history{gap:45px}.archive-photo:after{display:none}.compare{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}.pipeline{grid-template-columns:1fr}.pipe-line{width:1px;height:34px;justify-self:center}.audio-points{grid-template-columns:1fr 1fr}.artifact-grid{grid-template-columns:1fr}.build-arrow i{transform:rotate(90deg)}.latent-map{grid-template-columns:1fr 1fr 1fr;gap:10px}.latent-map i{transform:rotate(90deg)}.capability-orbit{height:530px}.artifact-file{margin-top:20px}.finale h2{font-size:20vw}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+
+</style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <nav class="topbar">
+    <a class="brand" href="#top"><span class="brand-dot"></span>EXECUTABLE FILM</a>
+    <div class="nav-links">
+      <a href="#idea">IDEA</a>
+      <a href="#compile">COMPILATION</a>
+      <a href="#engine">ENGINE</a>
+      <a class="nav-cta" href="https://github.com/Frank-nju/longjing-tea-website" target="_blank" rel="noreferrer">GITHUB ↗</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero panel" data-scene="night">
+      <div class="hero-shot" role="img" aria-label="Titanic, April 1912 project screenshot">
+        <img class="hero-image" src="https://vhjsyrarypxovlwxtyyq.supabase.co/storage/v1/object/public/screenshots/imports/1789815415864.jpg" alt="Titanic, April 1912 实时浏览器电影截图" />
+        <div class="hero-fallback" aria-hidden="true">
+          <div class="moon"></div>
+          <div class="ship ship-large"><span></span><i></i><b></b><em></em></div>
+          <div class="sea-lines"></div>
+        </div>
+        <div class="hero-vignette"></div>
+        <div class="scanline"></div>
+      </div>
+
+      <div class="hero-copy reveal">
+        <div class="eyebrow">A FIVE-MINUTE REAL-TIME FILM BECAME A QUESTION.</div>
+        <h1>WHAT IF A FILM<br/><em>BECAME A PROGRAM?</em></h1>
+        <p class="lede">我们从一部浏览器实时渲染的 Titanic 短片开始，最后逆向出一种不同的电影中间表示：<strong>可执行、可寻址、可重新导演的时空世界。</strong></p>
+        <div class="hero-actions">
+          <a class="primary" href="#idea">进入拆解 ↓</a>
+          <a class="ghost" href="https://velven.ai/s/titanic-april-1912" target="_blank" rel="noreferrer">查看原项目 ↗</a>
+        </div>
+      </div>
+
+      <div class="hero-meta reveal delay-1">
+        <span>REAL-TIME</span><span>THREE.JS</span><span>SEEKABLE WORLD</span><span>PROCEDURAL SCORE</span>
+      </div>
+      <div class="scroll-mark">SCROLL / 01</div>
+    </section>
+
+    <section id="idea" class="panel statement-panel">
+      <div class="section-no">01 — THE FIRST INVERSION</div>
+      <div class="statement reveal">
+        <p class="kicker">我们最初以为厉害的是“画得像”。</p>
+        <h2>后来发现真正重要的是：<br/><span>世界可以由时间重新求值。</span></h2>
+      </div>
+
+      <div class="formula-card reveal delay-1">
+        <div class="formula-line"><small>WORLD</small><code>FilmState = F(storyTime)</code></div>
+        <div class="formula-line"><small>DIRECTOR</small><code>Shot = G(storyTime, FilmState)</code></div>
+        <div class="formula-line"><small>FRAME</small><code>Frame = Render(FilmState, Shot)</code></div>
+      </div>
+
+      <div class="scrubber-demo reveal delay-2">
+        <div class="scrub-stage">
+          <div class="scrub-stars"></div>
+          <div class="iceberg"></div>
+          <div class="ship demo-ship"><span></span><i></i><b></b><em></em></div>
+          <div class="demo-sea"></div>
+          <div class="depth-label">STORY TIME <strong id="storyTime">198.0s</strong></div>
+        </div>
+        <div class="scrub-control">
+          <input id="timeScrub" type="range" min="0" max="300" step="0.1" value="198" aria-label="Story time" />
+          <div class="ticks"><span>00:00</span><span>IMPACT</span><span>BREAK</span><span>STERN</span><span>05:00</span></div>
+        </div>
+        <p>拖动的不是视频进度条，而是一个世界的地址。理论上，任意 <code>t</code> 都应该重建同一电影事实。</p>
+      </div>
+    </section>
+
+    <section class="panel split-history" data-scene="archive">
+      <figure class="archive-photo reveal">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/RMS_Titanic_sea_trials_April_2%2C_1912.jpg?width=1600" alt="RMS Titanic sea trials, April 2 1912" />
+        <figcaption>RMS Titanic, sea trials, 2 Apr 1912 · Public domain / Wikimedia Commons</figcaption>
+      </figure>
+      <div class="history-copy reveal delay-1">
+        <div class="section-no">02 — NOT A WEBPAGE</div>
+        <h2>A WORLD.<br/>A DIRECTOR.<br/>A CLOCK.</h2>
+        <p>画面精度决定“能不能信”；真正把 3D demo 推成电影的，是另一套系统：镜头、焦段、剪辑、声音透视、事件节奏与信息揭示。</p>
+        <div class="quote">“摄像机位置 ≠ 镜头设计。”</div>
+      </div>
+    </section>
+
+    <section class="panel director-panel">
+      <div class="director-bg"></div>
+      <div class="section-no">03 — DIRECTOR AS CODE</div>
+      <div class="director-grid">
+        <div class="shot-copy reveal">
+          <p class="kicker">把审美语言变成可执行参数。</p>
+          <h2>压迫感，最后会落成<br/><span>镜头的数值。</span></h2>
+          <p>低机位、焦段、主体占比、focus distance、aperture、camera drift——导演判断不再只是描述，而能成为可修改、可版本控制的结构。</p>
+        </div>
+        <div class="camera-hud reveal delay-1">
+          <div class="hud-header"><span>SHOT_021</span><span>REC ●</span></div>
+          <div class="hud-frame">
+            <div class="reticle"></div>
+            <div class="ship wire-ship"><span></span><i></i><b></b><em></em></div>
+            <div class="horizon"></div>
+          </div>
+          <div class="hud-specs">
+            <div><small>LENS</small><strong>55 mm</strong></div>
+            <div><small>FOCUS</small><strong>18.4 m</strong></div>
+            <div><small>APERTURE</small><strong>T2.0</strong></div>
+            <div><small>ROLL</small><strong>−3.2°</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel audio-panel">
+      <div class="section-no">04 — TIME IS SHARED</div>
+      <div class="audio-head reveal">
+        <p class="kicker">配乐不是一条外挂 MP3。</p>
+        <h2>画面、镜头、音乐、声音<br/><span>共享同一个 story time。</span></h2>
+      </div>
+      <div class="scoreviz reveal delay-1">
+        <div class="score-row"><span>SCORE</span><i style="--x:8%;--w:22%"></i><i style="--x:36%;--w:18%"></i><i style="--x:62%;--w:31%"></i></div>
+        <div class="score-row"><span>SFX</span><b style="--x:24%"></b><b style="--x:51%"></b><b style="--x:78%"></b></div>
+        <div class="score-row"><span>CAM</span><i style="--x:0%;--w:17%"></i><i style="--x:18%;--w:11%"></i><i style="--x:30%;--w:24%"></i><i style="--x:55%;--w:18%"></i><i style="--x:74%;--w:25%"></i></div>
+        <div class="score-playhead"></div>
+      </div>
+      <div class="audio-points reveal delay-2">
+        <div><strong>01</strong><span>sample / synth</span></div>
+        <div><strong>02</strong><span>bus / reverb / ducking</span></div>
+        <div><strong>03</strong><span>seek → reschedule</span></div>
+        <div><strong>04</strong><span>event-aligned score</span></div>
+      </div>
+    </section>
+
+    <section id="compile" class="panel compile-panel">
+      <div class="section-no">05 — FROM GRAYBOX TO EXECUTABLE PREVIS</div>
+      <div class="compile-intro reveal">
+        <h2>灰模告诉模型：<br/><span>“东西在哪里。”</span></h2>
+        <h2 class="accent">可执行样片告诉模型：<br/><span>“这一镜到底怎么拍。”</span></h2>
+      </div>
+      <div class="compare reveal delay-1">
+        <div class="compare-card muted">
+          <header>GRAYBOX</header>
+          <div class="gray-scene"><i></i><i></i><i></i><div class="cam-icon">◁</div></div>
+          <ul><li>geometry</li><li>blocking</li><li>rough camera</li></ul>
+        </div>
+        <div class="arrow">→</div>
+        <div class="compare-card hot">
+          <header>EXECUTABLE PREVIS</header>
+          <div class="layers">
+            <span>WORLD</span><span>TIME</span><span>CAMERA</span><span>LENS</span><span>LIGHT</span><span>SOUND</span><span>EDIT</span>
+          </div>
+          <ul><li>deterministic</li><li>seekable</li><li>directable</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel compilation-flow">
+      <div class="section-no">06 — AI FILM COMPILATION</div>
+      <div class="flow-copy reveal">
+        <p class="kicker">不要让视频模型同时担任所有职位。</p>
+        <h2>先把电影<strong>编译</strong>成一个确定的时空世界。</h2>
+      </div>
+      <div class="pipeline reveal delay-1">
+        <div class="pipe-node"><small>01</small><strong>INTENT</strong><span>剧本 / 创意</span></div>
+        <div class="pipe-line"></div>
+        <div class="pipe-node"><small>02</small><strong>FILM DSL</strong><span>结构化意图</span></div>
+        <div class="pipe-line"></div>
+        <div class="pipe-node active"><small>03</small><strong>EXECUTABLE WORLD</strong><span>空间 + 时间 + 导演</span></div>
+        <div class="pipe-line"></div>
+        <div class="pipe-node"><small>04</small><strong>NEURAL RENDERER</strong><span>最终视觉实现</span></div>
+      </div>
+      <div class="data-ribbon reveal delay-2">
+        <span>RGB</span><span>DEPTH</span><span>NORMAL</span><span>OBJECT ID</span><span>MOTION</span><span>CAMERA</span><span>LIGHT</span><span>AUDIO</span>
+      </div>
+    </section>
+
+    <section class="panel model-panel">
+      <div class="section-no">07 — WHAT THE MODEL ACTUALLY SHOWED</div>
+      <div class="model-title reveal">
+        <h2>不是“会写 Three.js”。</h2>
+        <p>真正罕见的是，它像一个 Technical Director 一样，把几十种成熟思想组织成一条 production pipeline。</p>
+      </div>
+      <div class="capability-orbit reveal delay-1">
+        <div class="orbit-center"><strong>TECHNICAL<br/>DIRECTOR</strong><span>MODEL</span></div>
+        <div class="orb o1">ARCHITECTURE</div>
+        <div class="orb o2">LONG-RANGE<br/>CONSISTENCY</div>
+        <div class="orb o3">GRAPHICS</div>
+        <div class="orb o4">AUDIO / DSP</div>
+        <div class="orb o5">DIRECTING</div>
+        <div class="orb o6">PERFORMANCE</div>
+        <div class="orb o7">FAILURE DESIGN</div>
+        <div class="orb o8">INSTRUMENTATION</div>
+      </div>
+      <blockquote class="reveal delay-2">“模型开始能够自己形成制作方法。”</blockquote>
+    </section>
+
+    <section class="panel intuition-panel">
+      <div class="section-no">08 — A LATENT MOVIE BEFORE THE RENDER</div>
+      <div class="intuition-copy reveal">
+        <h2>代码 → 空间 → 时间 → 画面</h2>
+        <p>强模型可能并不是每改几行就靠截图盲试，而是先在内部形成一个低分辨率的“脑内电影”，再用少量真实渲染做 ground-truth calibration。</p>
+      </div>
+      <div class="latent-map reveal delay-1">
+        <div>LANGUAGE</div><i>↕</i><div>CODE</div><i>↕</i><div>SPACE</div><i>↕</i><div>IMAGE</div><i>↕</i><div>MOTION</div>
+      </div>
+      <p class="term reveal delay-2">SPATIOTEMPORAL PROGRAM INTUITION <span>/ 时空程序直觉</span></p>
+    </section>
+
+    <section class="panel artifact-panel">
+      <div class="section-no">09 — THE SINGLE FILE WAS NEVER THE ARCHITECTURE</div>
+      <div class="artifact-grid">
+        <div class="source-tree reveal">
+          <div class="tree-title">SOURCE</div>
+          <code>packages/core/</code>
+          <code>packages/director/</code>
+          <code>packages/audio/</code>
+          <code>packages/renderer-three/</code>
+          <code>films/titanic/</code>
+          <code>films/whale-fall/</code>
+          <code>apps/studio/</code>
+        </div>
+        <div class="build-arrow reveal delay-1"><span>BUILD</span><i>→</i></div>
+        <div class="artifact-file reveal delay-2">
+          <div class="file-icon">HTML</div>
+          <strong>executable-film.html</strong>
+          <span>one shareable artifact</span>
+        </div>
+      </div>
+      <div class="exe-line reveal delay-2"><span>大型工程</span><b>≠</b><span>复杂交付</span><em>就像 project → game.exe</em></div>
+    </section>
+
+    <section id="engine" class="panel engine-panel">
+      <div class="section-no">10 — WE TURNED THE IDEA BACK INTO AN ENGINE</div>
+      <div class="engine-head reveal">
+        <h2>EXECUTABLE<br/><span>FILM ENGINE</span></h2>
+        <p>不是 Titanic clone。不是一个网页模板。是把“电影 = 可寻址世界”这个 invariant 抽成通用 runtime。</p>
+      </div>
+      <div class="terminal reveal delay-1">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>film-engine / architecture</span></div>
+        <pre><span class="dim">packages/</span>
+├─ <b>core/</b>             story clock · seek · lifecycle · RNG
+├─ <b>director/</b>         shot · camera rig · lens · focus
+├─ <b>renderer-three/</b>   realtime preview backend
+├─ <b>audio/</b>            buses · cue scheduling · seek epoch
+└─ <b>fx/</b>               quality · post pipeline
+
+<span class="dim">films/</span>
+└─ whale-fall/       first independent Film Project
+
+<span class="dim">apps/</span>
+└─ studio/           preview / authoring surface</pre>
+      </div>
+      <div class="engine-actions reveal delay-2">
+        <a class="primary" href="https://github.com/Frank-nju/longjing-tea-website" target="_blank" rel="noreferrer">查看 Engine 仓库 ↗</a>
+        <a class="ghost" href="../titanic-to-film-engine-analysis-2026-09-23.md">阅读完整分析 ↗</a>
+      </div>
+    </section>
+
+    <section class="panel finale">
+      <div class="finale-bg">
+        <div class="ship final-ship"><span></span><i></i><b></b><em></em></div>
+      </div>
+      <div class="finale-copy reveal">
+        <div class="section-no">EPILOGUE</div>
+        <h2>FILM<br/>AS A<br/><em>TIME-ADDRESSABLE WORLD.</em></h2>
+        <p>我们开始时只是想拆一部很厉害的实时电影。最后真正留下来的，是一种可能的新型电影中间表示。</p>
+        <div class="manifesto">INTENT → FILM DSL → EXECUTABLE WORLD → DIRECTING → MULTIPLE RENDER BACKENDS → NEURAL FINALIZATION</div>
+      </div>
+      <footer>
+        <span>Executable Film Engine · Research / Prototype</span>
+        <span>2026</span>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+const reveals=[...document.querySelectorAll('.reveal')];
+const io=new IntersectionObserver((entries)=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.13});
+reveals.forEach(el=>io.observe(el));
+
+const glow=document.querySelector('.cursor-glow');
+window.addEventListener('pointermove',e=>{if(glow){glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px'}});
+
+const scrub=document.querySelector('#timeScrub');
+const storyTime=document.querySelector('#storyTime');
+const ship=document.querySelector('.demo-ship');
+const iceberg=document.querySelector('.iceberg');
+function updateScrub(){
+  if(!scrub||!storyTime||!ship)return;
+  const t=Number(scrub.value);storyTime.textContent=t.toFixed(1)+'s';
+  const impact=74,breakT=198,stern=216;
+  let pitch=0,roll=0,sink=0,x=0;
+  if(t>impact){sink=Math.min(1,(t-impact)/150);pitch=Math.min(13,(t-impact)*.055)}
+  if(t>breakT){pitch=13+Math.min(28,(t-breakT)*1.15);roll=Math.sin((t-breakT)*.18)*2.5}
+  if(t>stern){pitch=41+Math.min(43,(t-stern)*1.7);sink=.72+Math.min(.5,(t-stern)/70)}
+  x=Math.max(-12,Math.min(30,(t-140)*.11));
+  ship.style.left=(33+x*.12)+'%';
+  ship.style.bottom=(31-sink*27)+'%';
+  ship.style.transform=`rotate(${-pitch}deg) rotateY(${roll}deg) scale(${1-sink*.14})`;
+  if(iceberg)iceberg.style.opacity=String(Math.max(.08,1-Math.abs(t-impact)/70));
+}
+scrub?.addEventListener('input',updateScrub);updateScrub();
+
+const hero=document.querySelector('.hero-image');
+hero?.addEventListener('error',()=>hero.classList.add('broken'));
+
+</script>
+</body>
+</html>
