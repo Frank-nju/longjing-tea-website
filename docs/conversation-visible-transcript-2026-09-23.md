@@ -2923,3 +2923,703 @@ Claude 不太可能是：
 这和一个经验非常丰富的人类技术导演的工作方式，确实越来越像了。
 
 ---
+
+
+## Round 05 · 为什么这么复杂还保持单文件？这其实已经是引擎雏形吗？
+
+### 用户
+
+还有一个问题，这个项目的工程化完整度是很高的，但是它还是选择了单文件的展现形式，是一种炫技吗？每个部分拆开细化，其实最终可以形成一个程序化3D电影制作的引擎的，多文件系统可维护性，可拓展性之类的也会大大增加，我想的对吗
+
+### 助手
+
+对，而且我觉得这里要把一个很容易混淆的东西分开：
+
+**它选择的是“单文件交付”，未必是“单文件开发”。**
+
+实际上从你给我的源码看，我现在甚至更倾向于认为：这个 `titanic.html` 本身就是某种 **bundle / build artifact**，而不是真正的原始工程形态。
+
+因为文件里直接留下了这种标记：
+
+```js
+// ==== FILE: src/00_core.js ====
+// ==== FILE: src/10_story.js ====
+// ...
+// ==== FILE: src/50_audio.js ====
+// ==== FILE: src/90_main.js ====
+```
+
+而 `00_core.js` 里还明确规定“每个 module file 调用 `TT.register(name, obj)`”；`90_main.js` 更直接写着自己会为“**absent from a dev build**”的模块创建 stand-in proxy。
+
+甚至 HTML 里还能看到 `<!--HEAD-->`、`<!--BODY-->` 这种明显有模板/拼装味道的痕迹，然后才进入内联后的 `src/00_core.js`。
+
+所以我现在的判断是：
+
+> **单文件更像发行格式，而不是架构本身。**
+
+这和一个正常前端项目最后 `npm run build` 生成一个压缩 bundle 是一个道理。
+
+### 那它是不是有一点“炫技”？
+
+**有，但不只是炫技。**
+
+如果这是一个模型能力 showcase，那么交一个：
+
+```text
+titanic.html
+```
+
+实在太有传播力了。
+
+用户不需要面对：
+
+```text
+src/
+assets/
+package.json
+vite.config.js
+public/
+npm install
+npm run dev
+```
+
+而是：
+
+> “这是一个 HTML，打开，它就是一部五分钟电影。”
+
+从能力展示角度特别漂亮。
+
+它在心理上的冲击远大于：
+
+> “Claude 写了一个 30 文件的 Three.js repo。”
+
+因为单 HTML 给人的感觉是：
+
+**整个世界、电影、摄影、声音、程序都封存在一个文件里。**
+
+所以它确实有某种 demoscene 式的炫技意味。
+
+但更重要的是工程交付理由。
+
+对这种 benchmark/showcase 来说，单文件有几个巨大优势：
+
+**容易验收。**
+
+拿到一个文件就能跑。
+
+**容易保存。**
+
+不会出现：
+
+```text
+少传了 assets/
+node_modules 版本错了
+构建工具升级了
+文件路径坏了
+```
+
+**容易比较模型输出。**
+
+如果模型每次最终都必须产生一个 artifact：
+
+```text
+index.html
+```
+
+评测 harness 就非常简单。
+
+**容易部署和分享。**
+
+直接静态托管。
+
+而它其实并没有真正追求“绝对单文件离线”，因为 Three.js 和 addons 仍然通过 jsDelivr import map 加载。音频优先也会下载采样，失败才进入 synth fallback。
+
+所以：
+
+> 单文件明显是一种**封装形式**，而不是“我拒绝任何外部依赖”的极限挑战。
+
+## 但你后半句话，我觉得更加重要
+
+> “每个部分拆开细化，其实最终可以形成一个程序化 3D 电影制作引擎。”
+
+**完全正确。**
+
+甚至我认为 Titanic 已经不是“能不能改造成引擎”的问题了。
+
+它实际上已经是：
+
+> **一个电影引擎原型，只不过 Titanic 这个项目和引擎层还粘在一起。**
+
+你看它现在已经存在：
+
+```text
+Clock
+Event Bus
+Module Lifecycle
+World State
+Timeline
+Renderer
+Director
+Camera Rig
+Audio Scheduler
+Mixer
+Score Engine
+Particle System
+Post FX
+Quality Manager
+UI
+Debug / Test Interface
+```
+
+这些哪一样是“Titanic 专属”的？
+
+都不是。
+
+真正 Titanic 专属的是：
+
+```text
+Titanic hull
+lifeboats
+iceberg
+telegraph messages
+Titanic sinking curves
+1912 sky
+Titanic score
+Titanic shot list
+```
+
+所以其实已经天然可以切成两层：
+
+```text
+┌──────────────────────────┐
+│       Film Engine        │
+│                          │
+│ clock                    │
+│ timeline                 │
+│ director                 │
+│ renderer                 │
+│ audio                    │
+│ fx                       │
+│ quality                  │
+│ scene/module runtime     │
+└────────────┬─────────────┘
+             │
+             │ film definition
+             ▼
+┌──────────────────────────┐
+│      Titanic Film        │
+│                          │
+│ ship                     │
+│ iceberg                  │
+│ ocean setup              │
+│ story events             │
+│ shots                    │
+│ score                    │
+└──────────────────────────┘
+```
+
+然后下面再放一个：
+
+```text
+Whale Fall Film
+```
+
+我们的《鲸落》就不需要重新写：
+
+```text
+clock
+seek
+director
+UI
+quality
+audio scheduling
+render loop
+```
+
+只写作品本身。
+
+## 真正值得抽出来的核心其实不是 Three.js
+
+这是我特别想强调的。
+
+如果真把它做成引擎，我不会把核心叫：
+
+> `TitanicEngine`
+
+甚至不会叫：
+
+> `ThreeFilmEngine`
+
+因为它最有价值的思想其实是：
+
+\[
+\boxed{WorldState = F(storyTime)}
+\]
+
+以及：
+
+\[
+\boxed{Shot = G(storyTime, WorldState)}
+\]
+
+这个才是灵魂。
+
+Three.js 只是 renderer。
+
+完全可以：
+
+```text
+Film Runtime
+     │
+     ├── Three.js renderer
+     ├── Babylon renderer
+     ├── Blender exporter
+     ├── Unreal exporter
+     └── AI-video conditioning exporter
+```
+
+也就是我们前面讨论的：
+
+> **Film DSL / executable screenplay**
+
+开始真正出现了。
+
+### 我甚至会把现在的 `TT.S` 升格成正式概念
+
+比如未来不叫：
+
+```js
+TT.S
+```
+
+而叫：
+
+```ts
+FilmState
+```
+
+所有系统有明确 contract：
+
+```ts
+interface FilmModule {
+  init(ctx: FilmContext): Promise<void> | void;
+  evaluate(
+    time: number,
+    state: FilmState,
+    ctx: FilmContext
+  ): void;
+}
+```
+
+然后严格规定：
+
+> 可 seek 系统原则上不能依赖上一帧。
+
+如果必须 stateful，例如流体模拟，则需要：
+
+```text
+snapshot
+history cache
+reconstruction
+```
+
+机制。
+
+Titanic 的 particle 系统其实已经在解决这件事了：粒子的位置是 `(t - birth)` 的解析函数；跟随船体的 emitter 甚至预生成整部电影的 section matrix history texture，因此冷启动到任意时间也能得到正确结果。
+
+这已经非常像**引擎设计 invariant**，而不只是某部电影的小技巧。
+
+## 然后 Director 完全可以独立成一套系统
+
+现在 Titanic 已经有：
+
+```text
+position
+target
+lens
+focus
+aperture
+roll
+fade
+cut
+```
+
+那下一步自然可以成为：
+
+```ts
+Shot {
+  id
+  t0
+  t1
+
+  camera
+  lens
+  focus
+  aperture
+
+  transition
+  grade
+  audioPerspective
+}
+```
+
+甚至：
+
+```text
+shot_012:
+    subject: stern
+    framing: medium-wide
+    lens: 55mm
+    motion:
+        type: dolly
+        ...
+```
+
+于是导演不需要写 camera JS。
+
+电影脚本开始变成**声明式数据**。
+
+## Story 也应该从代码里抽出来
+
+现在是：
+
+```js
+EV.impact = 74
+EV.breakStart = 195
+...
+```
+
+未来完全可以：
+
+```yaml
+events:
+  - id: impact
+    time: 74.0
+
+  - id: funnel_fall
+    time: 179.5
+
+  - id: break
+    time: 198.0
+```
+
+然后轨道：
+
+```yaml
+tracks:
+  stern_pitch:
+    - [190, 8deg]
+    - [205, 35deg]
+    - [214, 82deg]
+```
+
+引擎负责插值、seek、事件查询。
+
+这样就开始真正具备“电影制作软件”的味道了。
+
+## 多文件真正带来的提升不只是“代码好看”
+
+你说的可维护性、可扩展性确实会大幅提高，但还可以更具体。
+
+比如现在 `50_audio.js` 已经是两千多行。
+
+拆开以后完全应该是：
+
+```text
+audio/
+    AudioEngine.ts
+    Scheduler.ts
+    Mixer.ts
+    Sampler.ts
+    Synth.ts
+    Reverb.ts
+    Foley.ts
+    OfflineRender.ts
+```
+
+然后测试：
+
+```text
+Scheduler.test.ts
+Seek.test.ts
+Mixer.test.ts
+```
+
+FX：
+
+```text
+fx/
+    Composer.ts
+    Bloom.ts
+    DOF.ts
+    Particles.ts
+    Smoke.ts
+    Splash.ts
+    Underwater.ts
+```
+
+Director：
+
+```text
+director/
+    Director.ts
+    CameraRig.ts
+    Shot.ts
+    Framing.ts
+    Shake.ts
+```
+
+这时候最大的区别是：
+
+> **你可以升级引擎，而不碰电影。**
+
+比如未来把 Bloom 换了：
+
+Titanic 不改。
+
+Whale Fall 不改。
+
+再做“阿波罗 11 号”：
+
+也不用重写 Bloom。
+
+这才叫平台。
+
+## 我如果真把它工程化，大概会长这样
+
+```text
+film-engine/
+│
+├─ packages/
+│   ├─ core/
+│   │   ├─ clock/
+│   │   ├─ timeline/
+│   │   ├─ state/
+│   │   ├─ events/
+│   │   └─ module-runtime/
+│   │
+│   ├─ director/
+│   │   ├─ shots/
+│   │   ├─ camera/
+│   │   └─ framing/
+│   │
+│   ├─ renderer-three/
+│   │   ├─ scene/
+│   │   ├─ materials/
+│   │   └─ geometry/
+│   │
+│   ├─ fx/
+│   ├─ audio/
+│   ├─ ui/
+│   ├─ editor/
+│   └─ exporter/
+│
+├─ films/
+│   ├─ titanic/
+│   │   ├─ film.ts
+│   │   ├─ story.ts
+│   │   ├─ shots.ts
+│   │   ├─ score.ts
+│   │   └─ world/
+│   │
+│   └─ whale-fall/
+│
+└─ tools/
+    ├─ build-film
+    ├─ render-frame
+    ├─ render-video
+    └─ package-html
+```
+
+然后：
+
+```bash
+film build titanic
+```
+
+最后仍然可以生成：
+
+```text
+dist/titanic.html
+```
+
+所以：
+
+**工程多文件和最终单文件根本不矛盾。**
+
+甚至我认为这才是最优解：
+
+> **Source：高度模块化、多文件、多 package**
+>
+> **Artifact：一个可以到处分享的 HTML**
+
+这个其实和游戏工业非常类似：
+
+```text
+Unity 项目
+→ 成千上万个源文件
+
+最终：
+game.exe
+```
+
+没人因为最后只有一个 `.exe` 就认为游戏是“单文件工程”。
+
+Titanic 应该也这么看。
+
+## 再往前一步，它甚至应该有编辑器
+
+这就是你这个想法最有价值的下一阶段。
+
+现在模型直接写：
+
+```js
+shots.push(...)
+TR.pitch = [...]
+```
+
+人类不舒服。
+
+一个真正的引擎应该能够实时展示：
+
+```text
+┌────────────────────────────────────────────┐
+│                 Viewport                   │
+│                                            │
+│                 Titanic                    │
+│                                            │
+├────────────────────────────────────────────┤
+│ Story                                      │
+│ ─────●impact────────●break─────────────    │
+│                                            │
+│ Camera   █ shot12 ███ shot13 █████         │
+│ Music    ███████████████████████████       │
+│ SFX          ▲      ▲        ▲             │
+│ Lights   ─────────╲________                 │
+└────────────────────────────────────────────┘
+```
+
+但是底层保存的不是一个黑盒 Premiere project。
+
+而是：
+
+```text
+film.ts / film.json / film.yaml
+```
+
+所以：
+
+人可以改；
+
+模型可以改；
+
+Git 可以 diff；
+
+程序可以分析；
+
+自动测试可以跑。
+
+这个组合其实很强：
+
+> **传统 NLE/DCC 的可视化编辑能力 + 代码工程的可版本控制能力 + LLM 的自然语言编辑能力。**
+
+所以我反而觉得 Titanic 这个项目有一个很有意思的“不完整之处”：
+
+它已经证明了：
+
+> **程序化电影 runtime 可行。**
+
+但还没有真正做到：
+
+> **程序化电影 authoring platform。**
+
+也就是：
+
+```text
+现在：
+电影 = 大量精心组织的 JS
+
+下一步：
+电影 = 声明式 Film Project
+          ↓
+       Film Engine
+          ↓
+   realtime cinematic
+```
+
+这一步一旦完成，你前面提出的 AI 视频制作工作流就会自然接上：
+
+```text
+自然语言剧本
+      ↓
+LLM
+      ↓
+Film Project / DSL
+      ↓
+3D realtime previs
+      ↓
+导演调整
+      ↓
+RGB / Depth / Normal / Camera / Motion
+      ↓
+视频生成模型
+      ↓
+最终镜头
+```
+
+所以你的判断不只是“多文件会更好维护”。
+
+更准确地说是：
+
+> **Titanic 已经无意中暴露出了一套通用电影引擎的骨架；单 HTML 只是它现在为了展示而选择的发行容器。**
+
+我甚至觉得，如果我们后面继续做《鲸落》，与其把 v3 又塞回一个越来越大的 HTML，**更有意思的路线就是开始把 Titanic 的通用部分抽出来，做一个真正的 `film-engine`，然后让 Titanic 和 Whale Fall 都变成这个引擎上的两个 project。**
+
+那时候我们就不再是在“模仿这个 demo”，而是在把它隐含的工程思想向前推进一层。
+
+---
+
+
+## Round 06 · 用户澄清“单文件”的含义，并要求真正搭建引擎
+
+### 用户
+
+OK，我开始的单文件是指相对传统的稍微复杂一点的html网页就通常不是单页结构，而是在文件夹里有css之类的依赖，而这个项目居然在这么高的复杂度的情况下还能保持单文件，我觉得很厉害。你用exe解释我一下子就听懂了。现在尝试从这个项目开始逆向完整的视频制作引擎项目，在我的github里创一个仓库，把骨架搭好，填能填的内容
+@GitHub
+
+### 助手
+
+已经把第一版“逆向引擎化”工程搭出来了，定位不是 Titanic 复刻，而是把它隐含的通用能力抽成真正可扩展的程序化 3D 电影引擎。
+
+现在工程里已经有：
+
+- `packages/core`：绝对故事时钟、play/pause/seek、模块生命周期、Service Registry、曲线、确定性 RNG
+- `packages/director`：Shot、Camera Rig、焦段/FOV、镜头选择
+- `packages/renderer-three`：Three.js 后端、相机适配、自适应 DPR
+- `packages/audio`：Web Audio 总线、look-ahead cue 调度、seek epoch
+- `packages/fx`：质量档位与后处理接口骨架
+- `films/whale-fall`：第一个独立 Film Project，不再把作品和引擎绑死
+- `apps/studio`：最小实时预览播放器
+- `docs/`：架构、Titanic→Engine 映射、设计原则、完整路线图
+- `film.project.json` + draft JSON Schema：开始把“电影=JS代码”往 Film DSL 推
+- `tools/package-single-html.mjs`：开发期保持多文件，发布时重新压成单 HTML
+- `tools/verify.mjs`：零依赖静态验证器
+
+核心抽象已经明确成：
+
+```text
+FilmState = F(storyTime)
+Shot      = G(storyTime, FilmState)
+Frame     = Render(FilmState, Shot)
+```
+
+也就是说，Three.js 只是第一个 renderer，真正的引擎核心是**可寻址的电影世界**。
+
+我还专门保留了你刚才理解到的那层：
+
+```text
+开发：
+几十/几百个模块化文件
+        ↓
+构建
+        ↓
