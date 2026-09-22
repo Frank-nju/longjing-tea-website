@@ -1,0 +1,27 @@
+{
+  "name": "executable-film-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "films/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @efe/studio",
+    "build": "npm run build -w @efe/studio",
+    "build:single": "npm run build && node tools/package-single-html.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify": "npm run verify:static && npm run typecheck && npm run build:single",
+    "verify:static": "node tools/verify.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^7.1.7",
+    "@types/three": "^0.180.0"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  }
+}

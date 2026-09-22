@@ -1,105 +1,69 @@
-# 西湖龙井 · 官方网站
+# Executable Film Engine
 
-以东方美学呈现西湖龙井的产地、时间与手工之美。
+A code-first, time-addressable runtime for procedural 3D films.
 
-## 项目结构
+This repository is an engine extraction experiment inspired by structural analysis of a complex single-file real-time Titanic film demo. The goal is **not** to preserve Titanic-specific code; it is to generalize the reusable production ideas behind it into a maintainable multi-package project that can still compile down to a single shareable HTML artifact.
 
-```
-longjing-tea-website/
-├── index.html          # 首页 - 英雄区域 + 三大核心特征 + 诗句引用
-├── about.html          # 关于页 - 产地介绍、历史时间线、四绝品质特征
-├── process.html        # 工艺页 - 六道制茶工序、采茶日志、制茶人介绍
-├── gallery.html        # 茶样页 - 四款茶样卡片、品鉴指南、冲泡建议
-├── contact.html        # 联系页 - 联系方式、订阅表单、营业时间、配送信息、FAQ
-├── css/
-│   ├── variables.css   # 设计变量：颜色、字体、间距、阴影、过渡
-│   ├── style.css       # 主样式表：所有组件与页面样式
-│   └── responsive.css  # 响应式：平板（≤1024px）、竖屏（≤768px）、手机（≤480px）
-├── js/
-│   └── main.js         # 导航滚动效果、移动端菜单、滚动渐现动画、FAQ手风琴、表单处理
-└── images/
-    └── README.md       # 图片素材说明文档
+## Core idea
+
+```text
+FilmState = F(storyTime)
+Shot      = G(storyTime, FilmState)
+Frame     = Render(FilmState, Shot)
 ```
 
-## 设计系统
+A film is treated as an executable, seekable world rather than a linear pile of frame-to-frame mutations. Time-pure systems can reconstruct any frame directly. Stateful systems should provide snapshots, history caches, or deterministic reconstruction.
 
-### 配色
+## Current packages
 
-| 角色 | 色值 | 说明 |
-|------|------|------|
-| 茶褐色（主色） | `#6B5B47` | 导航链接、标题强调、按钮 |
-| 米白色（背景） | `#F5F1E8` | 页面主背景 |
-| 青灰色（辅助） | `#7A8B8F` | 次要文字、标签 |
-| 墨绿色（点缀） | `#4A5E52` | 成功提示 |
-| 浓墨色（正文） | `#2C2416` | 正文主色 |
+- `@efe/core` — clock, runtime, module lifecycle, curves, RNG, events.
+- `@efe/director` — shot selection and camera rig evaluation.
+- `@efe/renderer-three` — Three.js renderer/camera adapter and adaptive DPR.
+- `@efe/audio` — Web Audio buses and look-ahead cue scheduling with seek epochs.
+- `@efe/fx` — reusable quality/post-FX contracts and control primitives.
+- `@efe/film-whale-fall` — first example film project.
+- `@efe/studio` — minimal browser player/preview app.
 
-### 字体
-
-- **思源宋体（Noto Serif SC）**：通过 Google Fonts 引入，字重 300 / 400 / 500 / 600
-- 行距：正文 1.8 倍，标题 1.4 倍，引文 2.2 倍
-- 文字大小：`xs(12px)` → `sm(14px)` → `base(16px)` → `md(18px)` → `lg(20px)` → `xl(24px)` → `2xl(32px)` → `3xl(40px)`
-
-### 响应式断点
-
-| 断点 | 说明 |
-|------|------|
-| `> 1024px` | 桌面端，全功能布局 |
-| `≤ 1024px` | 平板横屏，部分双栏改为适配 |
-| `≤ 768px` | 平板竖屏 / 手机，单栏布局，汉堡菜单 |
-| `≤ 480px` | 手机，间距缩减，进一步简化布局 |
-
-## 页面功能
-
-| 页面 | 主要内容 |
-|------|----------|
-| **首页** | 全屏英雄区、产地/时间/手工三大核心、陆羽诗句引用 |
-| **关于** | 产地介绍、五段历史时间线（唐→现代）、四绝品质特征 |
-| **工艺** | 六道工序（采摘→分筛）交替图文布局、2025年采茶日志、制茶人介绍 |
-| **茶样** | 四款茶样卡片（明前/雨前/陈年/山场）、四步品鉴指南、冲泡参数 |
-| **联系** | 联系信息（电话/邮箱/地址/微信）、邮件订阅表单、营业时间、配送说明、五个FAQ |
-
-## 交互特性
-
-- **导航栏**：固定顶部，滚动后加深阴影，移动端汉堡菜单动画
-- **当前页高亮**：自动识别当前页面，导航链接下划线高亮
-- **滚动渐现**：`.fade-in` 元素通过 IntersectionObserver 触发进场动画
-- **FAQ手风琴**：点击展开/折叠，自动关闭其他项
-- **订阅表单**：前端验证，提交后显示友好提示，支持各字段
-
-## 使用方式
-
-本项目为纯静态网站，无需构建工具。直接以浏览器打开 `index.html` 即可预览，或部署到任何静态托管服务。
-
-### 本地预览
+## Run
 
 ```bash
-# 方式一：Python 内置服务器
-python3 -m http.server 8080
-
-# 方式二：Node.js serve
-npx serve .
+npm install
+npm run dev
 ```
 
-然后访问 `http://localhost:8080`。
+Build:
 
-### 部署到 GitHub Pages
+```bash
+npm run build
+```
 
-1. 进入仓库 Settings → Pages
-2. Source 选择 `main` 分支，根目录 `/`
-3. 保存后等待约 1 分钟，即可通过 `https://<username>.github.io/<repo>` 访问
+Create a single-file deliverable:
 
-## 图片说明
+```bash
+npm run build:single
+```
 
-`images/` 目录下的 `README.md` 列出了所有所需图片的文件名、尺寸与内容建议。
-在真实图片就位前，页面以纯色背景和 emoji 占位，不影响功能体验。
+The development source remains modular; `dist/executable-film.html` is the compact distribution artifact.
 
-## 后续建议
+## Why this architecture
 
-1. **添加真实图片** — 参照 `images/README.md` 拍摄或采购适合东方美学的茶园照片
-2. **接入邮件服务** — 将订阅表单接入 Mailchimp 或 Resend 等邮件 API
-3. **SEO 优化** — 为每个页面补充 `og:image`、结构化数据（Schema.org）
-4. **性能优化** — 图片使用 WebP 格式，添加 `loading="lazy"`，部署 CDN
+The original reference demo demonstrates that a sophisticated cinematic runtime can still be distributed as one HTML file. This project keeps that deployment property while separating source concerns so the engine can support multiple films, editors, exporters, and render backends.
 
----
+See:
 
-© 2026 西湖龙井。保留所有权利。
+- [`docs/architecture.md`](docs/architecture.md)
+- [`docs/titanic-mapping.md`](docs/titanic-mapping.md)
+- [`docs/roadmap.md`](docs/roadmap.md)
+
+## Status
+
+`0.1.0` is a working engine skeleton, not a production film tool. The current milestone proves:
+
+1. deterministic story-time evaluation;
+2. modular film/runtime separation;
+3. data-driven shot selection;
+4. browser Three.js preview;
+5. seek-safe audio cue epochs;
+6. modular source -> single-file distribution.
+
+The next major step is an authoring layer: timeline editor + Film DSL + shot/curve inspector + export passes (RGB/depth/normal/object ID/motion/camera metadata).

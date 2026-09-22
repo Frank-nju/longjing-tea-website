@@ -1,1 +1,4 @@
-Nothing should be ignored based on the provided file changes, as they only include source/config files (.md, .css, .js).
+node_modules/
+dist/
+.DS_Store
+*.log

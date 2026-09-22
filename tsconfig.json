@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "baseUrl": ".",
+    "paths": {
+      "@efe/core": ["packages/core/src/index.ts"],
+      "@efe/director": ["packages/director/src/index.ts"],
+      "@efe/audio": ["packages/audio/src/index.ts"],
+      "@efe/renderer-three": ["packages/renderer-three/src/index.ts"],
+      "@efe/fx": ["packages/fx/src/index.ts"],
+      "@efe/film-whale-fall": ["films/whale-fall/src/index.ts"]
+    }
+  },
+  "include": ["packages/**/*.ts", "films/**/*.ts", "apps/**/*.ts"]
+}

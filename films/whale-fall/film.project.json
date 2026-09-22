@@ -1,0 +1,28 @@
+{
+  "$schema": "../../docs/film-project.schema.draft.json",
+  "id": "whale-fall",
+  "title": "Whale Fall",
+  "duration": 80,
+  "events": {
+    "submerge": 10.5,
+    "midwater": 20,
+    "abyss": 42,
+    "floor": 63.5,
+    "yearsLater": 70.5,
+    "end": 80
+  },
+  "tracks": {
+    "whale.y": [[0, 0], [10, 0], [18, -60], [30, -260], [42, -540], [58, -830], [64, -895], [80, -900]],
+    "environment.light": [[0, 1], [10, 1], [22, 0.5], [42, 0.08], [60, 0.015], [80, 0.03]],
+    "environment.bioluminescence": [[0, 0], [26, 0], [42, 0.4], [55, 1], [80, 0.75]]
+  },
+  "shots": [
+    {"id": "surface-wide", "range": [0, 10.5], "lensMm": 42},
+    {"id": "eye-goodbye", "range": [10.5, 18], "lensMm": 80},
+    {"id": "descent-profile", "range": [18, 34], "lensMm": 52},
+    {"id": "blue-hour", "range": [34, 44], "lensMm": 65},
+    {"id": "abyss-wide", "range": [44, 58], "lensMm": 40},
+    {"id": "floor-arrival", "range": [58, 70], "lensMm": 55},
+    {"id": "after-years", "range": [70, 80], "lensMm": 70}
+  ]
+}

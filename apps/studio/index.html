@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Executable Film Engine</title>
+</head>
+<body>
+  <canvas id="stage"></canvas>
+  <div id="chrome">
+    <div class="brand"><span>EFE</span><small>Executable Film Engine · Whale Fall</small></div>
+    <div class="controls">
+      <button id="play">Play</button>
+      <input id="scrub" type="range" min="0" max="80" step="0.01" value="0" />
+      <output id="time">0:00 / 1:20</output>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

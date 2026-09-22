@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/executable-film-engine/film-project.schema.json",
+  "title": "Executable Film Project (draft)",
+  "type": "object",
+  "required": ["id", "title", "duration"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "duration": {"type": "number", "exclusiveMinimum": 0},
+    "events": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+    "tracks": {"type": "object"},
+    "shots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "range"],
+        "properties": {
+          "id": {"type": "string"},
+          "range": {
+            "type": "array",
+            "prefixItems": [{"type": "number"}, {"type": "number"}],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "lensMm": {"type": "number", "exclusiveMinimum": 0}
+        }
+      }
+    }
+  }
+}
