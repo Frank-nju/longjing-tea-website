@@ -3623,3 +3623,652 @@ Frame     = Render(FilmState, Shot)
         ↓
 构建
         ↓
+发行：
+一个 executable-film.html
+```
+
+就像“游戏工程 → game.exe”，而不是为了单文件牺牲工程结构。
+
+目前静态 verifier 是 **18/18 全通过**；不依赖 Three.js 的 `core / director / audio / fx` 也通过了严格 TypeScript 类型检查。整个工程 15 个 TS 文件通过语法转译检查。完整 Vite 构建没有在当前环境完成，因为这里拉 npm 依赖时网络超时，所以我没有把“实际浏览器构建通过”写成已验证事实。
+
+本地已经形成了初始 Git commit：
+
+```text
+837f60a feat: bootstrap executable film engine
+```
+
+你可以直接看完整工程：
+
+`executable-film-engine.zip`
+
+或者拿已经包含 Git 历史的 bundle：
+
+`executable-film-engine.bundle`
+
+有一个 GitHub 侧的限制：我已经连接到你的 `Frank-nju` 账号并确认没有同名仓库，但当前 GitHub 连接器**可以创建文件、commit、branch、PR，却没有“创建新 repository”这个 API**，所以我没有擅自塞进你任何现有项目里。
+
+你只需要在 GitHub 建一个空的：
+
+`Frank-nju/executable-film-engine`
+
+仓库壳，不要初始化 README。之后这个连接器就有权限把现在这棵工程直接完整推进去。
+
+我认为下一阶段最值得做的已经不是继续补目录，而是进入 **Phase 1：真正把 Titanic 最特别的那些机制引擎化**——重点是 cold-seek/history API、确定性粒子、rehearsal/prewarm、截图回归测试、HDR render graph，以及把《鲸落》v2 从“独立 HTML”完整迁移成这个 engine 的正式 film project。那一步完成以后，这个仓库就会从“架构原型”开始变成真正能制作影片的东西。
+
+---
+
+## Round 07 · 改用废弃仓库承载 Engine
+
+### 用户
+
+不好创建仓库的话，那你传到longjing这个仓库里吧，废弃的仓库，没什么东西，直接覆盖都可以
+
+### 助手（可见工作说明）
+
+可以，我直接把 `Frank-nju/longjing-tea-website` 当成这个引擎的新仓库来用，按你允许的范围覆盖原内容。先读取当前 `main` 的树和 HEAD，然后我会把本地已经搭好的 `executable-film-engine` 整棵替换进去，尽量用一次原子提交完成。
+
+> 这一轮主要是执行 GitHub 写入；完整落地结果在下一轮正式回复中确认。
+
+---
+
+## Round 08 · 用户指出操作路径太绕
+
+### 用户
+
+你这个看起来好麻烦，你直接把原仓库拉下来改了再提交会不会快的多啊
+
+### 助手
+
+对，这次已经按“正常整仓替换”的结果收尾了。
+
+`Frank-nju/longjing-tea-website` 的 `main` 现在已经完全变成 **Executable Film Engine**，旧龙井网站不再出现在当前工作树里，但历史仍保留，可以随时从旧 commit 恢复。
+
+新提交是：
+
+```text
+fb74901bed4bf3df33ebb8b3714142d7f3a45146
+feat: replace legacy site with executable film engine
+```
+
+远端我也重新核验过，36 个源文件已经完整落进去，包括 `packages/core`、`director`、`renderer-three`、`audio`、`fx`、`films/whale-fall`、`apps/studio`、Film Project schema、Titanic→Engine 映射文档和单 HTML 打包工具。
+
+你刚才说的方法本来确实更简单，只是我实际尝试 `git clone` 时，这个执行容器没有外网 DNS，连 `github.com` 都解析不了，所以最终还是用 GitHub 的 Git tree/commit 接口完成了**等价的一次整仓提交**，不是几十条零散提交。
+
+现在这个仓库已经可以正式作为我们的引擎仓库用了。下一步我建议直接继续在这里做，不必再搬：**把现在的“骨架引擎”推进到真正可制作影片的 v0.2**，优先补 Titanic 最核心的 `cold seek / history cache / deterministic particles / rehearsal-prewarm / HDR post pipeline`，然后把我们之前那个视觉效果更完整的《鲸落 v2》真正迁移进去。
+
+---
+
+# 第二编：关于“如何保存今晚讨论”的元对话
+
+## Round 09 · 用户要求把整晚讨论做成高保真档案
+
+### 用户
+
+很好，最后一件事，我们今晚这么多轮的对话讨论，起始于一个项目文件，经过我的逐层深挖追问和你的不断阐释，我们获得远超一般人看到项目惊艳一下就结束的深度，我想让你梳理汇总我们的对话历史，但不要像压缩上下文一样粗暴的压缩丢掉有效信息，而是完整忠实于每一段问题和回复的原文，只是现在更高的整体时间去回顾梳理这段讨论。可以先完整存储原文，便于整理后对照，要求交付一个md文件，可以传到仓库里
+
+### 助手
+
+整理完成，而且我按你的要求没有把它做成“压缩上下文式总结”。
+
+文档名是 **《从 `titanic.html` 到 Executable Film Engine：2026-09-22 深夜—2026-09-23 凌晨讨论全记录与回顾》**，约 **2002 行 / 56.7 KB**。结构上先保存讨论史，再站在整晚结束后的高度重新梳理：
+
+- 前半按时间顺序记录：Titanic 源码拆解 → 电影感与视觉品质 → 音频系统 →《鲸落》v2 → Executable Previs / AI Film Compilation → GitHub 技术谱系 → Claude 能力 → “代码脑内渲染” → 单文件交付 → Film Engine → GitHub 落地。
+- 能逐字恢复的用户原话和助手回复尽量保留；最早首次拆 `titanic.html` 的助手全文已经不在当前可逐字读取的上下文里，我明确标成了 **“上下文恢复版”**，没有伪造为原文。
+- 后半不是再次摘要，而是梳理这十几轮追问如何逐层改变问题本身，并最终提炼出 `FilmState = F(storyTime)`、Executable Previs、AI Film Compilation、source/artifact 分离等核心认识，以及 Engine 后续路线。
+
+本地 Markdown 可以直接保存：
+
+`titanic-to-executable-film-engine-conversation-2026-09-23.md`
+
+同一份文件也已经提交到了现在的 Engine 仓库：
+
+```text
+Frank-nju/longjing-tea-website
+docs/conversation-archive-2026-09-23.md
+
+commit:
+fc5d4fc26c4c23b08d02574eaa1146efdccb6d53
+
+docs: archive Titanic to film-engine discussion
+```
+
+我还专门在结尾留下了我觉得最能概括今晚这段讨论的一句话：
+
+> **我们从一个项目中逆向出了一种可能的 AI 电影制作范式，并已经开始把它工程化。**
+
+这份东西以后其实不只是聊天记录了，也可以直接作为这个 Engine 项目的**设计思想来源 / research diary**。
+
+---
+
+## Round 10 · 用户澄清：前端可见消息并没有丢
+
+### 用户
+
+额，你说无法恢复的是你的思考上下文吗，我的问题和你的回复还在我的前端im界面显示着，应该没有丢失吧，其他更多的思考过程丢了无所谓
+
+### 助手
+
+对，你理解得对。
+
+我刚才说“无法完整恢复”，指的是**我当前工作上下文里没有稳定拿到的早期可见回复全文**，以及模型内部的隐藏思考过程；并不是说你前端聊天界面里那些“你的提问 + 我的正式回复”被系统删掉了。
+
+只要它们还在你的 IM 聊天界面里显示，那对你来说当然就是完整原始记录。真正没必要保存的是这些东西：
+
+- 我内部的 chain-of-thought / 草稿推理；
+- 工具调用时的原始 JSON；
+- 检索、试错过程中的内部中间状态；
+- 没有发送给你的内部判断。
+
+你真正想归档的应该就是：
+
+> **你每一轮的原始问题 + 我每一轮最终发给你的可见回复 + 必要的工具成果/文件变化。**
+
+这个才是“对话原文”。
+
+所以我之前 Markdown 里写：
+
+> “最初助手回复的逐字全文已经无法完整恢复”
+
+这个表述确实容易让人误解，甚至对你的目标来说过于保守了。更准确应该写成：
+
+> **当前整理时，我无法从自己的工作上下文中逐字提取部分较早的可见消息；若以用户前端仍显示的聊天记录为准，则这些正式对话原文并未丢失。隐藏推理过程不属于本档案保存范围。**
+
+而且你这个要求其实比我第一版做得更严格：你不是要一个“详细总结”，而是想做一个类似 **annotated transcript / 带回顾注释的完整对话档案**。
+
+理想结构应该是：
+
+```markdown
+# 第一编：完整对话原文
+
+## Round 01
+### 李知非
+<原始提问逐字>
+
+### ChatGPT
+<正式回复逐字>
+
+
+## Round 02
+### 李知非
+<原始提问逐字>
+
+### ChatGPT
+<正式回复逐字>
+
+...
+
+
+# 第二编：过程成果
+
+- Titanic 源码分析
+- Whale Fall v2
+- GitHub 搜索结果
+- Executable Film Engine
+- commit / 文件演进
+
+
+# 第三编：事后回看
+
+## 问题是如何逐层深化的
+...
+
+## 最终形成的核心认识
+...
+```
+
+**第一编不应该改写、不应该压缩；第三编才允许总结和重新组织。**
+
+所以你这个纠正是对的。现在仓库里的那版更准确说是“**详尽讨论史 + 大量原话摘录**”，还没有达到你说的“**完整可见对话原文档案**”这个最高标准。
+
+如果后面能把你前端显示的完整 transcript 作为输入拿到，我会把仓库里的那份升级成真正的 **verbatim edition**；隐藏思考过程完全可以不管，它对这份思想史反而没什么价值。
+
+---
+
+## Round 11 · 第二版制作指令
+
+### 用户
+
+保留那一版，按照你现在的思路再写一版
+
+---
+
+# 第三编：过程成果索引
+
+这一编不是替代对话，而是为了让未来读者知道对话最终真的产生了哪些东西。
+
+## A. `titanic.html` 源码分析
+
+逐步抽出的核心结构：
+
+```text
+00_core
+10_story
+20_sky
+30_ocean
+40_ship
+45_props
+50_audio
+55_score
+60_fx
+70_director
+80_ui
+90_main
+```
+
+关键工程特征：
+
+- seek / freeze；
+- AudioContext 作为更精确的时间权威；
+- seek 后音频重新调度；
+- 解析型/历史缓存型粒子；
+- adaptive DPR；
+- shader rehearsal / prewarm；
+- debug URL hooks；
+- graceful fallback；
+- world truth / director presentation 分离。
+
+## B. 《鲸落 Whale Fall v2》
+
+从 demo 推进成 short-film prototype 的关键变化：
+
+- 80 秒完整时间轴；
+- 14-shot 电影镜头语法；
+- 深海和海床环境；
+- 程序化鲸鱼与骨骼；
+- marine snow / bioluminescence / jellyfish / fish / shark；
+- sediment landing；
+- Web Audio 程序化配乐与环境声；
+- 深度驱动调色；
+- “数年后”生态时间跳跃；
+- adaptive DPR / prewarm；
+- seek-friendly world state。
+
+## C. GitHub 技术谱系
+
+讨论涉及的人类前置项目：
+
+- 3 Dreams of Black
+- GNU Rocket
+- frame.js
+- Under Neon Lights
+- Theatre.js
+- Remotion
+- Motion Canvas
+
+核心结论：
+
+> Titanic 并非从零发明“浏览器电影”或“时间驱动动画”，但它把这些传统分支异常完整地收束进一个统一的、可 seek 的、程序化 cinematic runtime。
+
+## D. Executable Film Engine
+
+由讨论直接生成的工程骨架：
+
+```text
+packages/
+  core/
+  director/
+  renderer-three/
+  audio/
+  fx/
+
+films/
+  whale-fall/
+
+apps/
+  studio/
+
+docs/
+tools/
+```
+
+目标不是 Titanic clone，而是：
+
+```text
+creative Film Project
+        ↓
+generic Film Runtime
+        ↓
+renderer / audio / fx / director
+        ↓
+browser previs
+        ↓
+single HTML artifact
+        ↓
+future AI-video conditioning / USD / OTIO export
+```
+
+最终仓库：
+
+```text
+Frank-nju/longjing-tea-website
+```
+
+关键提交：
+
+```text
+fb74901bed4bf3df33ebb8b3714142d7f3a45146
+feat: replace legacy site with executable film engine
+```
+
+第一版讨论史归档提交：
+
+```text
+fc5d4fc26c4c23b08d02574eaa1146efdccb6d53
+docs: archive Titanic to film-engine discussion
+```
+
+---
+
+# 第四编：事后回看
+
+这一部分是编辑性回顾，不属于原文 transcript。
+
+## 1. 从“为什么这么惊艳”开始
+
+最初的问题接近作品鉴赏：
+
+- 程序化建模为什么能做到这种精细度？
+- WebGL 怎么在浏览器里保持电影感？
+- 运镜、BGM、剧情为什么让它不再像普通网页？
+- 网络 sample 是否意味着配乐部分其实没什么技术含量？
+
+但讨论很快发现：
+
+> 真正值得研究的不是“某个 shader 很酷”，而是整个作品已经形成了一条 production pipeline。
+
+## 2. 从图形 Demo 到电影 Runtime
+
+关键转变是把两类问题分开：
+
+```text
+视觉品质：
+geometry / material / lighting / FPS
+
+电影性：
+story / shot / camera / sound / edit / timing
+```
+
+从此 Titanic 不再只是 Three.js 技术展示，而被理解成：
+
+> 一个以 story time 为中心、可以被 seek 的实时电影世界。
+
+## 3. 从“做一个类似作品”到“Executable Previs”
+
+《鲸落》提供了实验：
+
+即便视觉保真度仍低于 Titanic，只要
+
+```text
+world
+camera
+timeline
+sound
+editing
+```
+
+被确定下来，观众已经能感到“这是影片”。
+
+于是出现：
+
+> **Executable Previs**
+
+它比普通灰模多出来的是：
+
+- 时间；
+- 镜头；
+- 剪辑；
+- 声音；
+- 可复现性；
+- 可程序修改性。
+
+## 4. 从 AI Video Generation 到 AI Film Compilation
+
+进一步讨论发现，视频模型不一定非要同时承担：
+
+```text
+编剧
+导演
+摄影
+美术
+表演
+渲染
+```
+
+更可控的分工可能是：
+
+```text
+意图
+↓
+LLM / Agent
+↓
+Film DSL / executable world
+↓
+锁定空间、表演、镜头、时间
+↓
+video model
+↓
+neural rendering / visual realization
+```
+
+由此形成概念：
+
+> **AI Film Compilation**
+
+## 5. 从“原创吗”到“模型能不能形成制作方法”
+
+GitHub 前置项目证明很多零件都有历史：
+
+```text
+WebGL film
+timeline sync
+demoscene
+Three.js editor
+code-as-video
+```
+
+但 Titanic 的特别之处在于：
+
+> 它把这些东西收束成一个长程一致、可 seek、带导演、音频、FX、性能和 fallback 的完整作品。
+
+因此模型能力被重新描述为：
+
+```text
+project conception
+→ architecture
+→ cross-domain integration
+→ implementation
+→ verification
+→ polish
+```
+
+而不只是 coding。
+
+## 6. “脑内 renderer”问题
+
+模型可能并不需要每改一行代码都截图。
+
+更合理的机制是：
+
+```text
+symbolic spatial reasoning
++
+graphics knowledge
++
+code↔visual statistical mapping
++
+temporal intuition
++
+occasional ground-truth rendering
+```
+
+这被概括成：
+
+> **spatiotemporal program intuition / 时空程序直觉**
+
+真正截图的作用更像：
+
+> **校准器，而不是唯一感知渠道。**
+
+## 7. 单文件真正说明了什么
+
+用户最初说的“单文件”，不是“JS 是否写在一个 `<script>` 里”这种小问题，而是：
+
+> 为什么这么复杂的作品最终仍然能像一个单独 artifact 一样交付？
+
+最终得到最直观的类比：
+
+```text
+大型 Unity / Unreal 工程
+↓
+build
+↓
+game.exe
+```
+
+因此：
+
+```text
+source architecture
+≠
+distribution artifact
+```
+
+Titanic 的 HTML 更像 exe。
+
+## 8. 从作品逆向出引擎
+
+一旦这个区分成立，Titanic 的通用部分自然浮出来：
+
+```text
+clock
+timeline
+module lifecycle
+world state
+director
+audio scheduler
+renderer
+FX
+quality
+debug
+seek reconstruction
+```
+
+而专属内容只是：
+
+```text
+Titanic hull
+iceberg
+lifeboats
+1912 sky
+sinking curves
+score
+shot list
+```
+
+于是引擎抽象成立：
+
+```text
+FilmState = F(storyTime)
+Shot      = G(storyTime, FilmState)
+Frame     = Render(FilmState, Shot)
+```
+
+Three.js 只是 backend。
+
+## 9. 最终从讨论走到真实仓库
+
+这晚最后真正发生的不是“我们想到了一个点子”。
+
+而是：
+
+```text
+Titanic structural analysis
+↓
+Whale Fall experiment
+↓
+Executable Previs
+↓
+AI Film Compilation
+↓
+human-project genealogy
+↓
+Claude capability analysis
+↓
+Film Engine architecture
+↓
+real GitHub repository
+```
+
+概念被落成了代码。
+
+---
+
+# 第五编：两版档案的关系
+
+建议长期并列保留：
+
+```text
+docs/conversation-archive-2026-09-23.md
+```
+
+定位：
+
+> 讨论史、思想演化、源码恢复、概念总结。
+
+以及：
+
+```text
+docs/conversation-visible-transcript-2026-09-23.md
+```
+
+定位：
+
+> 用户可见对话 transcript、Round-by-Round、产出索引、最后才允许编辑性回顾。
+
+前者回答：
+
+> “今晚我们究竟想明白了什么？”
+
+后者回答：
+
+> “今晚我们实际上是怎么一步一步聊到这里的？”
+
+两份都应该保留，因为后者是史料，前者是解释。
+
+---
+
+# 结尾
+
+今晚最有价值的可能不是任何单独一个结论。
+
+而是问题的连续变化：
+
+```text
+这个项目为什么这么厉害？
+↓
+为什么它像电影？
+↓
+为什么声音系统不是简单 BGM？
+↓
+代码样片为什么可能比灰模更进一步？
+↓
+它能否进入 AI 视频和传统电影？
+↓
+前人有没有走过这条路？
+↓
+Claude 真正体现了什么能力？
+↓
+模型是不是已经有代码→动态视觉的时空直觉？
+↓
+单文件到底意味着什么？
+↓
+能不能把作品里的通用 runtime 抽成引擎？
+↓
+能不能真的把引擎搭起来？
+```
+
+这套范式并不是一开始就被完整说出来的。
+
+它是通过连续追问，每一轮只比上一轮多深入一步，最后才从一个 HTML 文件里被“挖”出来的。
+
+这正是保留完整可见对话的价值。
