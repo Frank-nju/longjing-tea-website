@@ -4,4 +4,6 @@ export * from './events';
 export * from './clock';
 export * from './curves';
 export * from './rng';
+export * from './reconstruction';
+export * from './lifecycle';
 export * from './runtime';

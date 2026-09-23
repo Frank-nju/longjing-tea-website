@@ -3,6 +3,7 @@ import { sampleScalar, seededRandom, smoothstep, type FilmDefinition, type FilmM
 import { Director, mixVec3, type Shot, type Vec3Tuple } from '@efe/director';
 import { createThreeDirectorModule, createThreeRendererModule, THREE_SERVICE, type ThreeService } from '@efe/renderer-three';
 import { createAudioModule, type AudioCue } from '@efe/audio';
+import { generateDeterministicPoints } from '@efe/fx';
 
 export interface WhaleFallState {
   t: number;
@@ -42,6 +43,7 @@ function whaleWorld(): FilmModule<WhaleFallState> {
   return {
     name: 'whale-world',
     order: 300,
+    reconstruction: { mode: 'pure' },
     init(ctx) {
       const { scene } = ctx.services.require<ThreeService>(THREE_SERVICE);
       root = new THREE.Group();
@@ -116,18 +118,61 @@ function whaleWorld(): FilmModule<WhaleFallState> {
 }
 
 function particleCloud(count: number, radius: number, color: THREE.ColorRepresentation, seed: string): THREE.Points {
-  const rng = seededRandom(seed);
-  const data = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
+  const data = generateDeterministicPoints(count, seed, (rng) => {
     const r = Math.pow(rng(), 0.6) * radius;
     const a = rng() * Math.PI * 2;
     const y = (rng() - 0.5) * radius;
-    data[i * 3] = Math.cos(a) * r;
-    data[i * 3 + 1] = y;
-    data[i * 3 + 2] = Math.sin(a) * r;
-  }
+    return [Math.cos(a) * r, y, Math.sin(a) * r];
+  });
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(data, 3));
-  const material = new THREE.PointsMaterial({ color: 0x55e5d7, size: 0.28, transparent: true, opacity: 0, depthWrite: false });
+  const material = new THREE.PointsMaterial({ color, size: seed === 'lume' ? 0.28 : 0.11, transparent: true, opacity: seed === 'lume' ? 0 : 0.35, depthWrite: false });
   return new THREE.Points(geometry, material);
 }
+
+const shots: Shot<WhaleFallState>[] = [
+  shot('surface-wide', 0, 10.5, [-28, 7, 20], [22, 5, 9], [0, 0, 0], 42),
+  shot('eye-goodbye', 10.5, 18, [8, 2.8, 6], [5, 1.8, 3.5], [5.2, -0.1, 0.65], 80),
+  shot('descent-profile', 18, 34, [-26, 8, 16], [-18, 11, 24], [0, 0, 0], 52),
+  shot('blue-hour', 34, 44, [20, 5, 20], [10, 7, 18], [0, -1, 0], 65),
+  shot('abyss-wide', 44, 58, [-34, 16, 28], [-42, 18, 31], [0, -2, 0], 40),
+  shot('floor-arrival', 58, 70, [25, 11, 22], [15, 8, 16], [0, -3, 0], 55),
+  shot('after-years', 70, 80, [-18, 7, 25], [-12, 11, 30], [0, -4, 0], 70),
+];
+
+function shot(id: string, t0: number, t1: number, from: Vec3Tuple, to: Vec3Tuple, targetOffset: Vec3Tuple, focalLengthMm: number): Shot<WhaleFallState> {
+  return {
+    id, t0, t1,
+    evaluate(_time, progress, state) {
+      const base = mixVec3(from, to, progress);
+      const position: Vec3Tuple = [base[0], base[1] + state.whaleY, base[2]];
+      const target: Vec3Tuple = [targetOffset[0], state.whaleY + targetOffset[1], targetOffset[2]];
+      return { position, target, focalLengthMm, focusDistance: 28, aperture: id === 'eye-goodbye' ? 1.8 : 4 };
+    },
+  };
+}
+
+const director = new Director(shots);
+
+const cues: AudioCue[] = [
+  { id: 'surface-breath', time: 2.4, bus: 'ambience', trigger(engine, when) { engine.tone('ambience', when, 120, 0.35, 0.035); } },
+  { id: 'submerge', time: 10.5, bus: 'sfx', trigger(engine, when) { engine.tone('sfx', when, 75, 0.7, 0.12); } },
+  { id: 'abyss', time: 42, bus: 'music', trigger(engine, when) { engine.tone('music', when, 146.83, 1.8, 0.04); engine.tone('music', when + 0.04, 220, 1.7, 0.025); } },
+  { id: 'floor', time: 63.5, bus: 'sfx', trigger(engine, when) { engine.tone('sfx', when, 48, 1.2, 0.16); } },
+  { id: 'renewal', time: 71, bus: 'music', trigger(engine, when) { for (const [i, f] of [146.83, 185, 220, 293.66].entries()) engine.tone('music', when + i * 0.05, f, 4.2, 0.028); } },
+];
+
+export const whaleFallFilm: FilmDefinition<WhaleFallState> = {
+  id: 'whale-fall',
+  title: 'Whale Fall',
+  duration,
+  createState: () => ({ t: 0, depth: 0, whaleY: 0, pitch: 0, roll: 0, light: 1, lume: 0, floorBlend: 0 }),
+  sample,
+  rehearsal: [1.5, 10.5, 22, 42, 58, 64, 72, 78],
+  modules: [
+    () => createThreeRendererModule({ background: 0x03111a, maxPixelRatio: 1.5, adaptiveResolution: true }),
+    whaleWorld,
+    () => createThreeDirectorModule(director),
+    () => createAudioModule(cues),
+  ],
+};

@@ -25,3 +25,5 @@ export interface FramePass {
   beforeFrame?(ctx: FramePassContext): void;
   dispose?(): void;
 }
+
+export * from './particles';

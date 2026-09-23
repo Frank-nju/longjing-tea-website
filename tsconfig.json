@@ -17,5 +17,5 @@
       "@efe/film-whale-fall": ["films/whale-fall/src/index.ts"]
     }
   },
-  "include": ["packages/**/*.ts", "films/**/*.ts", "apps/**/*.ts"]
+  "include": ["packages/**/*.ts", "films/**/*.ts", "apps/**/*.ts", "tests/**/*.ts", "playwright.config.ts"]
 }

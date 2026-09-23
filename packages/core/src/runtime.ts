@@ -1,7 +1,25 @@
 import { StoryClock } from './clock';
 import { EventBus } from './events';
+import { orderModules } from './lifecycle';
+import { buildWarmupTimes } from './reconstruction';
 import { ServiceRegistry } from './services';
-import type { FilmContext, FilmDefinition, FilmModule, FilmRuntimeLike } from './types';
+import type {
+  FilmContext,
+  FilmDefinition,
+  FilmModule,
+  FilmRuntimeLike,
+  ModuleFailurePolicy,
+  SeekRequest,
+} from './types';
+
+export type ModuleFailurePhase = 'init' | 'seek' | 'warmup' | 'prewarm' | 'update' | 'resize' | 'dispose';
+
+export interface ModuleFailureEvent {
+  module: string;
+  phase: ModuleFailurePhase;
+  policy: ModuleFailurePolicy;
+  error: unknown;
+}
 
 interface RuntimeEvents {
   play: number;
@@ -10,6 +28,13 @@ interface RuntimeEvents {
   ready: undefined;
   end: number;
   frame: number;
+  moduleError: ModuleFailureEvent;
+}
+
+interface ReconstructionOptions {
+  cold: boolean;
+  previousTime: number;
+  emitFrame: boolean;
 }
 
 export class FilmRuntime<S extends object> implements FilmRuntimeLike<S> {
@@ -21,16 +46,24 @@ export class FilmRuntime<S extends object> implements FilmRuntimeLike<S> {
   readonly modules: FilmModule<S>[];
   readonly context: FilmContext<S>;
 
+  #initModules: FilmModule<S>[];
+  #updateModules: FilmModule<S>[];
+  #resizeModules: FilmModule<S>[];
+
   #definition: FilmDefinition<S>;
   #lastTime = 0;
   #raf = 0;
   #ready = false;
+  #disabledModules = new Set<FilmModule<S>>();
 
   constructor(definition: FilmDefinition<S>, canvas: HTMLCanvasElement) {
     this.#definition = definition;
     this.duration = definition.duration;
     this.state = definition.createState();
-    this.modules = definition.modules.map((factory) => factory()).sort((a, b) => (a.order ?? 50) - (b.order ?? 50));
+    this.modules = definition.modules.map((factory) => factory());
+    this.#initModules = orderModules(this.modules, 'init');
+    this.#updateModules = orderModules(this.modules, 'update');
+    this.#resizeModules = orderModules(this.modules, 'resize');
     this.context = {
       canvas,
       width: Math.max(1, canvas.clientWidth || window.innerWidth),
@@ -43,11 +76,16 @@ export class FilmRuntime<S extends object> implements FilmRuntimeLike<S> {
   }
 
   async init(): Promise<void> {
-    this.#definition.sample(0, this.state);
-    for (const module of this.modules) await module.init?.(this.context);
+    this.#sample(0);
+    for (const module of this.#initModules) {
+      await this.#invokeAsync(module, 'init', () => module.init?.(this.context));
+    }
     this.resize();
+    if (this.#definition.rehearsal?.length) {
+      await this.rehearse(this.#definition.rehearsal);
+    }
     this.#ready = true;
-    this.evaluateAt(0, 0);
+    this.#reconstruct(0, 0, { cold: true, previousTime: 0, emitFrame: true });
     this.events.emit('ready', undefined);
   }
 
@@ -67,24 +105,51 @@ export class FilmRuntime<S extends object> implements FilmRuntimeLike<S> {
   }
 
   seek(time: number): void {
-    const value = Math.max(0, Math.min(time, this.duration));
+    const value = this.#clampTime(time);
+    const previousTime = this.#lastTime;
     this.clock.seek(value);
+    this.#reconstruct(value, 0, { cold: true, previousTime, emitFrame: true });
     this.#lastTime = value;
-    this.evaluateAt(value, 0);
     this.events.emit('seek', value);
   }
 
+  async rehearse(times: readonly number[] = this.#definition.rehearsal ?? []): Promise<void> {
+    const points = [...new Set(times.map((time) => this.#clampTime(time)))].sort((a, b) => a - b);
+    if (!points.length) return;
+
+    const restoreTime = this.#clampTime(this.now());
+    const wasPlaying = this.clock.playing;
+    if (wasPlaying) this.clock.pause();
+
+    let previousTime = restoreTime;
+    for (const time of points) {
+      this.#reconstruct(time, 0, { cold: true, previousTime, emitFrame: false });
+      for (const module of this.#updateModules) {
+        await this.#invokeAsync(module, 'prewarm', () => module.prewarm?.(time, this.context));
+      }
+      previousTime = time;
+    }
+
+    this.#reconstruct(restoreTime, 0, { cold: true, previousTime, emitFrame: false });
+    this.clock.seek(restoreTime);
+    this.#lastTime = restoreTime;
+    if (wasPlaying) this.clock.play(restoreTime);
+  }
+
   evaluateAt(time: number, dt = 0): void {
-    const sampled = this.#definition.sample(time, this.state);
-    if (sampled && sampled !== this.state) Object.assign(this.state, sampled);
-    for (const module of this.modules) module.update?.(time, dt, this.context);
+    this.#sample(time);
+    for (const module of this.#updateModules) {
+      this.#invoke(module, 'update', () => module.update?.(time, dt, this.context));
+    }
     this.events.emit('frame', time);
   }
 
   resize(width = window.innerWidth, height = window.innerHeight): void {
     this.context.width = Math.max(1, width);
     this.context.height = Math.max(1, height);
-    for (const module of this.modules) module.resize?.(this.context.width, this.context.height, this.context);
+    for (const module of this.#resizeModules) {
+      this.#invoke(module, 'resize', () => module.resize?.(this.context.width, this.context.height, this.context));
+    }
   }
 
   startLoop(): void {
@@ -106,6 +171,83 @@ export class FilmRuntime<S extends object> implements FilmRuntimeLike<S> {
 
   dispose(): void {
     cancelAnimationFrame(this.#raf);
-    for (const module of [...this.modules].reverse()) module.dispose?.(this.context);
+    for (const module of [...this.#initModules].reverse()) {
+      this.#invoke(module, 'dispose', () => module.dispose?.(this.context));
+    }
+  }
+
+  #reconstruct(time: number, dt: number, options: ReconstructionOptions): void {
+    if (options.cold) {
+      const request: SeekRequest = {
+        previousTime: options.previousTime,
+        targetTime: time,
+        cold: true,
+      };
+
+      for (const module of this.#updateModules) {
+        this.#invoke(module, 'seek', () => module.seek?.(request, this.context));
+      }
+
+      for (const module of this.#updateModules) {
+        const policy = module.reconstruction;
+        if (policy?.mode !== 'warmup' || !module.update || this.#disabledModules.has(module)) continue;
+
+        const times = buildWarmupTimes(time, {
+          window: policy.window,
+          step: policy.step,
+        });
+        let previous = times[0] ?? Math.max(0, time - policy.window);
+        for (const warmTime of times) {
+          this.#sample(warmTime);
+          const warmDt = Math.max(0, warmTime - previous);
+          this.#invoke(module, 'warmup', () => module.update?.(warmTime, warmDt, this.context));
+          previous = warmTime;
+        }
+      }
+    }
+
+    this.#sample(time);
+    for (const module of this.#updateModules) {
+      this.#invoke(module, 'update', () => module.update?.(time, dt, this.context));
+    }
+    if (options.emitFrame) this.events.emit('frame', time);
+  }
+
+  #sample(time: number): void {
+    const sampled = this.#definition.sample(time, this.state);
+    if (sampled && sampled !== this.state) Object.assign(this.state, sampled);
+  }
+
+  #clampTime(time: number): number {
+    return Math.max(0, Math.min(time, this.duration));
+  }
+
+  #invoke(module: FilmModule<S>, phase: ModuleFailurePhase, fn: () => void): void {
+    if (this.#disabledModules.has(module)) return;
+    try {
+      fn();
+    } catch (error) {
+      this.#handleFailure(module, phase, error);
+    }
+  }
+
+  async #invokeAsync(
+    module: FilmModule<S>,
+    phase: ModuleFailurePhase,
+    fn: () => void | Promise<void> | undefined,
+  ): Promise<void> {
+    if (this.#disabledModules.has(module)) return;
+    try {
+      await fn();
+    } catch (error) {
+      this.#handleFailure(module, phase, error);
+    }
+  }
+
+  #handleFailure(module: FilmModule<S>, phase: ModuleFailurePhase, error: unknown): void {
+    const policy = module.failurePolicy ?? 'throw';
+    this.events.emit('moduleError', { module: module.name, phase, policy, error });
+    if (policy === 'disable') this.#disabledModules.add(module);
+    if (policy === 'throw') throw error;
   }
 }

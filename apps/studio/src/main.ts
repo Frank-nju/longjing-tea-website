@@ -12,6 +12,8 @@ const runtime = new FilmRuntime(whaleFallFilm, canvas);
 await runtime.init();
 runtime.startLoop();
 
+(window as typeof window & { __EFE_RUNTIME__?: FilmRuntime<any> }).__EFE_RUNTIME__ = runtime;
+
 function format(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -21,6 +23,10 @@ runtime.events.on('frame', (t) => {
   if (!scrub.matches(':active')) scrub.value = String(t);
   time.value = `${format(t)} / ${format(runtime.duration)}`;
   play.textContent = runtime.clock.playing ? 'Pause' : 'Play';
+});
+
+runtime.events.on('moduleError', (event) => {
+  console.error(`[EFE] module failure: ${event.module} during ${event.phase} (${event.policy})`, event.error);
 });
 
 play.addEventListener('click', async () => {

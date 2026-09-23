@@ -12,15 +12,31 @@ Shot      = G(storyTime, FilmState)
 Frame     = Render(FilmState, Shot)
 ```
 
-A film is treated as an executable, seekable world rather than a linear pile of frame-to-frame mutations. Time-pure systems can reconstruct any frame directly. Stateful systems should provide snapshots, history caches, or deterministic reconstruction.
+A film is treated as an executable, seekable world rather than a linear pile of frame-to-frame mutations. Time-pure systems can reconstruct any frame directly. Stateful systems must declare how they reconstruct: manual checkpoint/history restoration or bounded deterministic warm-up.
+
+## Production Runtime v0.2
+
+The current milestone moves the project beyond the original runtime skeleton:
+
+- independent lifecycle phase ordering (`initOrder` / `updateOrder`) so services can initialize early and render late;
+- explicit reconstruction policies for time-pure, manual and bounded-warmup modules;
+- `CheckpointStore<T>` for stateful simulation snapshots;
+- cold-seek hooks and browser determinism tests;
+- deterministic particle emission / point-generation primitives;
+- film-level rehearsal points and module prewarm hooks;
+- per-module `throw | disable | continue` failure policies;
+- Playwright screenshot-regression harness;
+- headless frame rendering with FilmState + camera/lens JSON metadata.
+
+See [`docs/production-runtime.md`](docs/production-runtime.md).
 
 ## Current packages
 
-- `@efe/core` — clock, runtime, module lifecycle, curves, RNG, events.
+- `@efe/core` — clock, runtime, reconstruction/checkpoint contracts, module lifecycle, curves, RNG, events.
 - `@efe/director` — shot selection and camera rig evaluation.
 - `@efe/renderer-three` — Three.js renderer/camera adapter and adaptive DPR.
 - `@efe/audio` — Web Audio buses and look-ahead cue scheduling with seek epochs.
-- `@efe/fx` — reusable quality/post-FX contracts and control primitives.
+- `@efe/fx` — quality/post-FX contracts plus deterministic particle primitives.
 - `@efe/film-whale-fall` — first example film project.
 - `@efe/studio` — minimal browser player/preview app.
 
@@ -35,35 +51,75 @@ Build:
 
 ```bash
 npm run build
+npm run build:single
 ```
 
-Create a single-file deliverable:
+Core/runtime verification:
 
 ```bash
-npm run build:single
+npm run verify
+```
+
+Browser cold-seek verification:
+
+```bash
+npx playwright install chromium
+npm run test:browser
+```
+
+Headless frame render:
+
+```bash
+npm run render:frame -- --time=42 --out=artifacts/frame-42.png
 ```
 
 The development source remains modular; `dist/executable-film.html` is the compact distribution artifact.
 
 ## Why this architecture
 
-The original reference demo demonstrates that a sophisticated cinematic runtime can still be distributed as one HTML file. This project keeps that deployment property while separating source concerns so the engine can support multiple films, editors, exporters, and render backends.
+Development and distribution have different goals. Source should be modular, testable and reusable; the final artifact may still be a single HTML file for portability and showcase simplicity.
+
+The engine therefore separates:
+
+```text
+Film Project
+    ↓
+time-addressable Runtime
+    ↓
+Director / Audio / FX / Renderer
+    ↓
+Studio / headless render / future exporters
+    ↓
+single HTML or structured conditioning outputs
+```
+
+## Status
+
+v0.2 is a **Production Runtime milestone**, not yet a complete film-production application.
+
+The lower half of the pipeline is now explicit and testable:
+
+```text
+Film Project → Runtime → Preview / Headless Frame → Build → Single HTML
+```
+
+The next major milestone is the authoring half:
+
+```text
+Script / Intent
+      ↓
+Film DSL
+      ↓
+Timeline + Curve + Shot Editor
+      ↓
+Executable Film Project
+      ↓
+Runtime / Export
+```
 
 See:
 
 - [`docs/architecture.md`](docs/architecture.md)
+- [`docs/production-runtime.md`](docs/production-runtime.md)
 - [`docs/titanic-mapping.md`](docs/titanic-mapping.md)
 - [`docs/roadmap.md`](docs/roadmap.md)
-
-## Status
-
-`0.1.0` is a working engine skeleton, not a production film tool. The current milestone proves:
-
-1. deterministic story-time evaluation;
-2. modular film/runtime separation;
-3. data-driven shot selection;
-4. browser Three.js preview;
-5. seek-safe audio cue epochs;
-6. modular source -> single-file distribution.
-
-The next major step is an authoring layer: timeline editor + Film DSL + shot/curve inspector + export passes (RGB/depth/normal/object ID/motion/camera metadata).

@@ -62,6 +62,8 @@ export function createAudioModule<S extends object>(cues: AudioCue[], lookAhead 
   const api: FilmModule<S> & { start(): Promise<void> } = {
     name: 'audio',
     order: 50,
+    failurePolicy: 'disable',
+    reconstruction: { mode: 'manual' },
     init(ctx) {
       engine = new AudioEngine();
       ctx.services.set(AUDIO_SERVICE, engine);
@@ -70,6 +72,13 @@ export function createAudioModule<S extends object>(cues: AudioCue[], lookAhead 
     async start() {
       if (!engine) return;
       await engine.resume();
+    },
+    seek(request) {
+      if (!engine) return;
+      engine.resetEpoch();
+      nextIndex = Math.max(0, cues.findIndex((cue) => cue.time >= request.targetTime));
+      if (nextIndex < 0) nextIndex = cues.length;
+      lastTime = request.targetTime;
     },
     update(time, _dt, ctx) {
       if (!engine || engine.context.state !== 'running') return;

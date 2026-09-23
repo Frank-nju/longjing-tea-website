@@ -1,6 +1,6 @@
 # Roadmap
 
-## Phase 0 — extraction (this commit)
+## Phase 0 — extraction
 
 - [x] monorepo/workspace skeleton
 - [x] absolute story clock
@@ -14,15 +14,19 @@
 - [x] example `Whale Fall` film
 - [x] modular build -> single HTML packager
 
-## Phase 1 — film runtime hardening
+## Phase 1 — Production Runtime v0.2
 
-- [ ] checkpoint/history API for stateful modules
-- [ ] generic warm-up and cold-seek tests
-- [ ] deterministic particle primitives
-- [ ] render prewarm/rehearsal API quality tiers + feature capabilities
-- [ ] failure/fallback policy per module
-- [ ] browser screenshot regression harness
-- [ ] offline frame rendering
+- [x] checkpoint/history API for stateful modules
+- [x] bounded warm-up reconstruction contract
+- [x] cold-seek browser test harness
+- [x] deterministic particle primitives
+- [x] rehearsal/prewarm API
+- [x] per-module failure/fallback policy
+- [x] browser screenshot regression harness
+- [x] headless single-frame rendering + camera/state metadata
+- [x] quality tier baseline
+- [ ] renderer feature-capability negotiation
+- [ ] committed visual baselines from a GPU-stable CI runner
 
 ## Phase 2 — cinematic renderer
 

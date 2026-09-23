@@ -24,12 +24,33 @@ export interface FilmRuntimeLike<S extends object> {
   play(from?: number): void;
   pause(): void;
   seek(time: number): void;
+  rehearse?(times?: readonly number[]): Promise<void>;
+}
+
+export type ModuleFailurePolicy = 'throw' | 'disable' | 'continue';
+
+export type ReconstructionPolicy =
+  | { mode: 'pure' }
+  | { mode: 'manual' }
+  | { mode: 'warmup'; window: number; step?: number };
+
+export interface SeekRequest {
+  previousTime: number;
+  targetTime: number;
+  cold: boolean;
 }
 
 export interface FilmModule<S extends object> {
   name: string;
   order?: number;
+  initOrder?: number;
+  updateOrder?: number;
+  resizeOrder?: number;
+  failurePolicy?: ModuleFailurePolicy;
+  reconstruction?: ReconstructionPolicy;
   init?(ctx: FilmContext<S>): MaybePromise<void>;
+  seek?(request: SeekRequest, ctx: FilmContext<S>): void;
+  prewarm?(time: number, ctx: FilmContext<S>): MaybePromise<void>;
   update?(time: number, dt: number, ctx: FilmContext<S>): void;
   resize?(width: number, height: number, ctx: FilmContext<S>): void;
   dispose?(ctx: FilmContext<S>): void;
@@ -44,4 +65,5 @@ export interface FilmDefinition<S extends object> {
   createState(): S;
   sample(time: number, state: S): S | void;
   modules: FilmModuleFactory<S>[];
+  rehearsal?: readonly number[];
 }

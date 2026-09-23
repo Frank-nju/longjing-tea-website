@@ -24,7 +24,9 @@ export function createThreeRendererModule<S extends object>(options: ThreeRender
 
   return {
     name: 'renderer-three',
-    order: 1000,
+    initOrder: 100,
+    updateOrder: 1000,
+    reconstruction: { mode: 'pure' },
     init(ctx) {
       const renderer = new THREE.WebGLRenderer({ canvas: ctx.canvas, antialias: false, powerPreference: 'high-performance' });
       renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -36,6 +38,10 @@ export function createThreeRendererModule<S extends object>(options: ThreeRender
       const camera = new THREE.PerspectiveCamera(45, ctx.width / ctx.height, 0.1, 10000);
       service = { renderer, scene, camera };
       ctx.services.set(THREE_SERVICE, service);
+    },
+    prewarm() {
+      if (!service) return;
+      service.renderer.compile(service.scene, service.camera);
     },
     update(_time, dt, ctx) {
       if (!service) return;
@@ -86,7 +92,9 @@ export function applyCameraRig(camera: THREE.PerspectiveCamera, rig: CameraRig):
 export function createThreeDirectorModule<S extends object>(director: Director<S>): FilmModule<S> {
   return {
     name: 'director-three',
-    order: 700,
+    initOrder: 700,
+    updateOrder: 700,
+    reconstruction: { mode: 'pure' },
     update(time, _dt, ctx) {
       const service = ctx.services.get<ThreeService>(THREE_SERVICE);
       if (!service) return;
