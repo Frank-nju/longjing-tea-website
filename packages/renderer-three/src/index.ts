@@ -14,6 +14,7 @@ export interface ThreeRendererOptions {
   background?: THREE.ColorRepresentation;
   maxPixelRatio?: number;
   adaptiveResolution?: boolean;
+  antialias?: boolean;
 }
 
 export function createThreeRendererModule<S extends object>(options: ThreeRendererOptions = {}): FilmModule<S> {
@@ -28,7 +29,7 @@ export function createThreeRendererModule<S extends object>(options: ThreeRender
     updateOrder: 1000,
     reconstruction: { mode: 'pure' },
     init(ctx) {
-      const renderer = new THREE.WebGLRenderer({ canvas: ctx.canvas, antialias: false, powerPreference: 'high-performance' });
+      const renderer = new THREE.WebGLRenderer({ canvas: ctx.canvas, antialias: options.antialias ?? false, powerPreference: 'high-performance' });
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1;

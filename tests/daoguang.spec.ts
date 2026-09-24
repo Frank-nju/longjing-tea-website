@@ -24,8 +24,14 @@ test('linear cut is time-addressable and has all four chapter jumps', async ({ p
   const second = await page.evaluate(() => JSON.stringify((window as any).__DAOGUANG_RUNTIME__.state));
   expect(second).toBe(first);
   await expect(page.locator('.chapter-button')).toHaveCount(4);
+  await page.evaluate(() => {
+    (window as any).__DAOGUANG_RUNTIME__.events.on('seek', (time: number) => {
+      (window as any).__LAST_CHAPTER_SEEK__ = time;
+    });
+  });
   await page.getByRole('button', { name: /04 \/ 1842—1860/ }).click();
-  await expect(page.locator('#clockLabel')).toHaveText('03:31');
+  expect(await page.evaluate(() => (window as any).__LAST_CHAPTER_SEEK__)).toBe(211);
+  await expect(page.locator('#beatTitle')).toHaveText('舰队驶入帝国腹地');
 });
 
 test('interactive mode pauses for a labeled choice, rejoins history, and can replay the other route', async ({ page }) => {
@@ -66,6 +72,7 @@ test('single HTML runs in isolation without network access and retains captions'
     if (!request.url().startsWith('file:') && !request.url().startsWith('data:')) externalRequests.push(request.url());
   });
   page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => { if (message.type() === 'error') pageErrors.push(message.text()); });
   try {
     await copyFile(fileURLToPath(new URL('../release/daoguang-history-film.html', import.meta.url)), isolatedFile);
     await page.context().setOffline(true);
@@ -111,4 +118,26 @@ test('mobile branch choice and subtitle stay inside the viewport', async ({ page
   expect(subtitle).not.toBeNull();
   expect(subtitle!.x + subtitle!.width).toBeLessThanOrEqual(390);
   await expect(page.locator('#beatTitle')).toHaveText('舰队驶入帝国腹地');
+});
+
+
+test('rendered chapter and branch frames are identical after unrelated seeks', async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.goto('/');
+  await page.getByRole('button', { name: '观看线性正片' }).click();
+  await page.evaluate(() => (window as any).__DAOGUANG_RUNTIME__.pause());
+  const results = await page.evaluate(() => {
+    const runtime = (window as any).__DAOGUANG_RUNTIME__;
+    const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
+    return [0, 55, 115, 140, 160, 211].map((time) => {
+      runtime.seek(time);
+      const first = canvas.toDataURL();
+      runtime.seek(264);
+      runtime.seek(time);
+      return { time, identical: first === canvas.toDataURL() };
+    });
+  });
+  for (const { time, identical } of results) {
+    expect(identical, `pixels at ${time}s must not depend on earlier seeks`).toBe(true);
+  }
 });
