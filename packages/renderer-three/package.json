@@ -1,1 +1,1 @@
-{"name":"@efe/renderer-three","version":"0.1.0","private":true,"type":"module","exports":"./src/index.ts","dependencies":{"@efe/core":"0.1.0","@efe/director":"0.1.0","three":"^0.180.0"}}
+{"name":"@efe/renderer-three","version":"0.1.0","private":true,"type":"module","exports":"./src/index.ts","dependencies":{"@efe/core":"workspace:*","@efe/director":"workspace:*","three":"^0.180.0"}}

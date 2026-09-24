@@ -1,0 +1,394 @@
+{
+  "$schema": "../../docs/film-project.schema.draft.json",
+  "id": "daoguang-history-film",
+  "title": "一封军报如何变成朝廷的选择",
+  "duration": 270,
+  "events": {
+    "opium-destruction": 17,
+    "dinghai-falls": 55,
+    "dispatch-north": 76,
+    "memorial-arrives": 96,
+    "decision": 115,
+    "campaign": 176,
+    "yangtze": 211,
+    "treaty": 235,
+    "reflection": 252,
+    "end": 270
+  },
+  "tracks": {
+    "sea.level": [
+      [
+        0,
+        0
+      ],
+      [
+        20,
+        0.04
+      ],
+      [
+        60,
+        0.08
+      ],
+      [
+        90,
+        0.02
+      ],
+      [
+        210,
+        0.12
+      ],
+      [
+        238,
+        0.06
+      ],
+      [
+        270,
+        0
+      ]
+    ],
+    "light.exposure": [
+      [
+        0,
+        0.75
+      ],
+      [
+        36,
+        0.48
+      ],
+      [
+        66,
+        0.4
+      ],
+      [
+        105,
+        0.22
+      ],
+      [
+        120,
+        0.3
+      ],
+      [
+        176,
+        0.45
+      ],
+      [
+        211,
+        0.55
+      ],
+      [
+        239,
+        0.32
+      ],
+      [
+        270,
+        0.78
+      ]
+    ],
+    "route.progress": [
+      [
+        0,
+        0
+      ],
+      [
+        76,
+        0
+      ],
+      [
+        86,
+        0.55
+      ],
+      [
+        96,
+        1
+      ],
+      [
+        210,
+        1
+      ],
+      [
+        211,
+        0
+      ],
+      [
+        230,
+        1
+      ],
+      [
+        270,
+        1
+      ]
+    ]
+  },
+  "shots": [
+    {
+      "id": "opium-coast",
+      "range": [
+        0,
+        55
+      ],
+      "lensMm": 40,
+      "focusDistance": 35,
+      "aperture": 5.6,
+      "camera": {
+        "from": [
+          18,
+          10,
+          30
+        ],
+        "to": [
+          9,
+          7,
+          24
+        ],
+        "targetOffset": [
+          0,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "id": "dinghai",
+      "range": [
+        55,
+        75
+      ],
+      "lensMm": 55,
+      "focusDistance": 24,
+      "aperture": 4,
+      "camera": {
+        "from": [
+          18,
+          9,
+          25
+        ],
+        "to": [
+          8,
+          6,
+          19
+        ],
+        "targetOffset": [
+          0,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "id": "dispatch-map",
+      "range": [
+        75,
+        96
+      ],
+      "lensMm": 42,
+      "focusDistance": 30,
+      "aperture": 5.6,
+      "camera": {
+        "from": [
+          1,
+          19,
+          24
+        ],
+        "to": [
+          0,
+          17,
+          19
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "memorial-desk",
+      "range": [
+        96,
+        115
+      ],
+      "lensMm": 70,
+      "focusDistance": 18,
+      "aperture": 2.8,
+      "camera": {
+        "from": [
+          2,
+          7,
+          15
+        ],
+        "to": [
+          0,
+          5,
+          11
+        ],
+        "targetOffset": [
+          0,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "id": "decision",
+      "range": [
+        115,
+        135
+      ],
+      "lensMm": 50,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "from": [
+          0,
+          8,
+          20
+        ],
+        "to": [
+          0,
+          6,
+          16
+        ],
+        "targetOffset": [
+          0,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "id": "branch-choice",
+      "range": [
+        135,
+        176
+      ],
+      "lensMm": 48,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "from": [
+          17,
+          8,
+          22
+        ],
+        "to": [
+          8,
+          6,
+          17
+        ],
+        "targetOffset": [
+          0,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "id": "constraints",
+      "range": [
+        176,
+        211
+      ],
+      "lensMm": 48,
+      "focusDistance": 26,
+      "aperture": 4,
+      "camera": {
+        "from": [
+          19,
+          9,
+          28
+        ],
+        "to": [
+          10,
+          6,
+          21
+        ],
+        "targetOffset": [
+          0,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "id": "yangtze",
+      "range": [
+        211,
+        235
+      ],
+      "lensMm": 38,
+      "focusDistance": 40,
+      "aperture": 5.6,
+      "camera": {
+        "from": [
+          20,
+          14,
+          32
+        ],
+        "to": [
+          12,
+          9,
+          26
+        ],
+        "targetOffset": [
+          0,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "id": "treaty",
+      "range": [
+        235,
+        252
+      ],
+      "lensMm": 70,
+      "focusDistance": 17,
+      "aperture": 2.8,
+      "camera": {
+        "from": [
+          0,
+          7,
+          15
+        ],
+        "to": [
+          0,
+          5,
+          11
+        ],
+        "targetOffset": [
+          0,
+          1,
+          0
+        ]
+      }
+    },
+    {
+      "id": "reflection",
+      "range": [
+        252,
+        270
+      ],
+      "lensMm": 45,
+      "focusDistance": 36,
+      "aperture": 5.6,
+      "camera": {
+        "from": [
+          20,
+          13,
+          28
+        ],
+        "to": [
+          28,
+          17,
+          36
+        ],
+        "targetOffset": [
+          0,
+          2,
+          0
+        ]
+      }
+    }
+  ]
+}

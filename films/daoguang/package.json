@@ -1,0 +1,14 @@
+{
+  "name": "@efe/film-daoguang",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "@efe/core": "workspace:*",
+    "@efe/project": "workspace:*",
+    "@efe/director": "workspace:*",
+    "@efe/renderer-three": "workspace:*",
+    "three": "^0.180.0"
+  }
+}

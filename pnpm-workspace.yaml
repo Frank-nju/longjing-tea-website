@@ -1,0 +1,4 @@
+packages:
+  - 'packages/*'
+  - 'films/*'
+  - 'apps/*'

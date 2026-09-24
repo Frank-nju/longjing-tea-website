@@ -1,1 +1,1 @@
-{"name":"@efe/director","version":"0.1.0","private":true,"type":"module","exports":"./src/index.ts","dependencies":{"@efe/core":"0.1.0"}}
+{"name":"@efe/director","version":"0.1.0","private":true,"type":"module","exports":"./src/index.ts","dependencies":{"@efe/core":"workspace:*"}}
