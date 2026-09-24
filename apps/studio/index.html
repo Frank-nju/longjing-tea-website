@@ -3,18 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Executable Film Engine</title>
+  <title>Executable Film Studio</title>
 </head>
 <body>
   <canvas id="stage"></canvas>
+
   <div id="chrome">
-    <div class="brand"><span>EFE</span><small>Executable Film Engine · Whale Fall</small></div>
-    <div class="controls">
-      <button id="play">Play</button>
-      <input id="scrub" type="range" min="0" max="80" step="0.01" value="0" />
-      <output id="time">0:00 / 1:20</output>
-    </div>
+    <header class="topbar">
+      <div class="brand"><span>EFE</span><small>Executable Film Studio · Whale Fall</small></div>
+      <button id="exportProject">Export Project JSON</button>
+    </header>
+
+    <aside id="inspector">
+      <div class="panel-title">SHOT INSPECTOR</div>
+      <label>Shot <select id="shotSelect"></select></label>
+      <div class="field-grid">
+        <label>Start <input id="shotStart" type="number" step="0.1" /></label>
+        <label>End <input id="shotEnd" type="number" step="0.1" /></label>
+        <label>Lens mm <input id="shotLens" type="number" step="1" min="1" /></label>
+        <label>Aperture <input id="shotAperture" type="number" step="0.1" min="0.1" /></label>
+      </div>
+
+      <div class="panel-title second">TRACK KEY</div>
+      <label>Track <select id="trackSelect"></select></label>
+      <label>Key <select id="keySelect"></select></label>
+      <div class="field-grid">
+        <label>Time <input id="keyTime" type="number" step="0.1" /></label>
+        <label>Value <input id="keyValue" type="number" step="0.01" /></label>
+      </div>
+
+      <div class="panel-title second">LIVE FILM STATE</div>
+      <pre id="stateReadout"></pre>
+      <div id="editStatus">Project data is live.</div>
+    </aside>
+
+    <section id="timelinePanel">
+      <div class="controls">
+        <button id="play">Play</button>
+        <input id="scrub" type="range" min="0" max="80" step="0.01" value="0" />
+        <output id="time">0:00 / 1:20</output>
+      </div>
+      <div id="timeline">
+        <div id="playhead"></div>
+        <div class="lane"><span>EVENTS</span><div id="eventLane" class="lane-content"></div></div>
+        <div class="lane"><span>SHOTS</span><div id="shotLane" class="lane-content"></div></div>
+        <div class="lane"><span>TRACK</span><div id="trackLane" class="lane-content"></div></div>
+      </div>
+    </section>
   </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

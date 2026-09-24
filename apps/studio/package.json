@@ -1,6 +1,6 @@
 {
   "name": "@efe/studio",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@efe/core": "0.1.0",
+    "@efe/project": "0.1.0",
     "@efe/audio": "0.1.0",
-    "@efe/film-whale-fall": "0.1.0"
+    "@efe/film-whale-fall": "0.2.0"
   }
 }

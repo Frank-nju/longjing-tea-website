@@ -27,11 +27,16 @@ export interface DirectedFrame {
 }
 
 export class Director<S extends object> {
-  #shots: Shot<S>[];
+  #shots: Shot<S>[] = [];
   #lastShot = '';
 
   constructor(shots: Shot<S>[]) {
+    this.setShots(shots);
+  }
+
+  setShots(shots: Shot<S>[]): void {
     this.#shots = [...shots].sort((a, b) => a.t0 - b.t0);
+    this.reset();
   }
 
   evaluate(time: number, state: S): DirectedFrame | null {

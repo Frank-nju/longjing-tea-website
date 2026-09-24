@@ -6,10 +6,12 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "resolveJsonModule": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "paths": {
       "@efe/core": ["packages/core/src/index.ts"],
+      "@efe/project": ["packages/project/src/index.ts"],
       "@efe/director": ["packages/director/src/index.ts"],
       "@efe/audio": ["packages/audio/src/index.ts"],
       "@efe/renderer-three": ["packages/renderer-three/src/index.ts"],

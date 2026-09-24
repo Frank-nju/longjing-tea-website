@@ -1,9 +1,11 @@
 import * as THREE from 'three';
-import { sampleScalar, seededRandom, smoothstep, type FilmDefinition, type FilmModule } from '@efe/core';
+import { smoothstep, type FilmDefinition, type FilmModule } from '@efe/core';
+import { PROJECT_SERVICE, FilmProjectStore, type FilmProjectData, type ProjectShot } from '@efe/project';
 import { Director, mixVec3, type Shot, type Vec3Tuple } from '@efe/director';
 import { createThreeDirectorModule, createThreeRendererModule, THREE_SERVICE, type ThreeService } from '@efe/renderer-three';
 import { createAudioModule, type AudioCue } from '@efe/audio';
 import { generateDeterministicPoints } from '@efe/fx';
+import projectJson from '../film.project.json';
 
 export interface WhaleFallState {
   t: number;
@@ -16,24 +18,73 @@ export interface WhaleFallState {
   floorBlend: number;
 }
 
-const duration = 80;
-const whaleYKeys = [[0, 0], [10, 0], [18, -60], [30, -260], [42, -540], [58, -830], [64, -895], [80, -900]] as const;
-const lightKeys = [[0, 1], [10, 1], [22, 0.5], [42, 0.08], [60, 0.015], [80, 0.03]] as const;
-const lumeKeys = [[0, 0], [26, 0], [42, 0.4], [55, 1], [80, 0.75]] as const;
+export const whaleFallProjectStore = new FilmProjectStore(projectJson as unknown as FilmProjectData);
+const duration = whaleFallProjectStore.snapshot().duration;
 
 function sample(time: number, state: WhaleFallState): void {
   state.t = time;
-  state.whaleY = sampleScalar(whaleYKeys, time);
+  state.whaleY = whaleFallProjectStore.sampleTrack('whale.y', time, 0);
   state.depth = Math.max(0, -state.whaleY);
-  state.pitch = sampleScalar([[0, 0], [18, 0.06], [42, 0.18], [64, 0.03], [80, 0]], time);
-  state.roll = sampleScalar([[0, 0], [28, 0.12], [50, -0.2], [64, 0.05], [80, 0]], time);
-  state.light = sampleScalar(lightKeys, time);
-  state.lume = sampleScalar(lumeKeys, time);
+  state.pitch = whaleFallProjectStore.sampleTrack('whale.pitch', time, 0);
+  state.roll = whaleFallProjectStore.sampleTrack('whale.roll', time, 0);
+  state.light = whaleFallProjectStore.sampleTrack('environment.light', time, 1);
+  state.lume = whaleFallProjectStore.sampleTrack('environment.bioluminescence', time, 0);
   state.floorBlend = smoothstep(60, 70, time);
 }
 
+function projectShotToShot(source: ProjectShot): Shot<WhaleFallState> {
+  const camera = source.camera ?? {
+    from: [0, 0, 20] as [number, number, number],
+    to: [0, 0, 20] as [number, number, number],
+    targetOffset: [0, 0, 0] as [number, number, number],
+  };
+  return {
+    id: source.id,
+    t0: source.range[0],
+    t1: source.range[1],
+    evaluate(_time, progress, state) {
+      const base = mixVec3(camera.from as Vec3Tuple, camera.to as Vec3Tuple, progress);
+      const position: Vec3Tuple = [base[0], base[1] + state.whaleY, base[2]];
+      const target: Vec3Tuple = [
+        camera.targetOffset[0],
+        state.whaleY + camera.targetOffset[1],
+        camera.targetOffset[2],
+      ];
+      return {
+        position,
+        target,
+        focalLengthMm: source.lensMm,
+        focusDistance: source.focusDistance ?? 28,
+        aperture: source.aperture ?? 4,
+      };
+    },
+  };
+}
+
+function buildShots(): Shot<WhaleFallState>[] {
+  return whaleFallProjectStore.snapshot().shots.map(projectShotToShot);
+}
+
+const director = new Director(buildShots());
+
+function projectModule(): FilmModule<WhaleFallState> {
+  let unsubscribe: (() => void) | undefined;
+  return {
+    name: 'film-project',
+    initOrder: 10,
+    updateOrder: 10,
+    reconstruction: { mode: 'pure' },
+    init(ctx) {
+      ctx.services.set(PROJECT_SERVICE, whaleFallProjectStore);
+      unsubscribe = whaleFallProjectStore.subscribe(() => director.setShots(buildShots()));
+    },
+    dispose() {
+      unsubscribe?.();
+    },
+  };
+}
+
 function whaleWorld(): FilmModule<WhaleFallState> {
-  let root: THREE.Group;
   let whale: THREE.Group;
   let bodyMaterial: THREE.MeshStandardMaterial;
   let floor: THREE.Mesh;
@@ -46,8 +97,6 @@ function whaleWorld(): FilmModule<WhaleFallState> {
     reconstruction: { mode: 'pure' },
     init(ctx) {
       const { scene } = ctx.services.require<ThreeService>(THREE_SERVICE);
-      root = new THREE.Group();
-      scene.add(root);
 
       scene.fog = new THREE.FogExp2(0x04111b, 0.003);
       scene.add(new THREE.HemisphereLight(0x8bb7cc, 0x020508, 1.6));
@@ -85,12 +134,16 @@ function whaleWorld(): FilmModule<WhaleFallState> {
         tail.rotation.y = side * 0.35;
         whale.add(tail);
       }
-      root.add(whale);
+      scene.add(whale);
 
       const floorGeo = new THREE.PlaneGeometry(1200, 1200, 96, 96);
       const fp = floorGeo.attributes.position;
-      const rng = seededRandom('floor');
-      for (let i = 0; i < fp.count; i++) fp.setZ(i, (rng() - 0.5) * 9);
+      const floorPoints = generateDeterministicPoints(fp.count, 'floor', (rng, index) => [
+        fp.getX(index),
+        fp.getY(index),
+        (rng() - 0.5) * 9,
+      ]);
+      for (let i = 0; i < fp.count; i++) fp.setXYZ(i, floorPoints[i * 3], floorPoints[i * 3 + 1], floorPoints[i * 3 + 2]);
       floorGeo.computeVertexNormals();
       floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: 0x11171a, roughness: 1 }));
       floor.rotation.x = -Math.PI / 2;
@@ -104,9 +157,15 @@ function whaleWorld(): FilmModule<WhaleFallState> {
     update(time, _dt, ctx) {
       whale.position.set(0, ctx.state.whaleY, 0);
       whale.rotation.set(ctx.state.pitch, 0.1 * Math.sin(time * 0.08), ctx.state.roll);
-      bodyMaterial.color.setRGB(0.18 + ctx.state.light * 0.15, 0.22 + ctx.state.light * 0.12, 0.26 + ctx.state.light * 0.1);
+      bodyMaterial.color.setRGB(
+        0.18 + ctx.state.light * 0.15,
+        0.22 + ctx.state.light * 0.12,
+        0.26 + ctx.state.light * 0.1,
+      );
       const service = ctx.services.require<ThreeService>(THREE_SERVICE);
-      if (service.scene.fog instanceof THREE.FogExp2) service.scene.fog.density = 0.0015 + ctx.state.depth / 900 * 0.012;
+      if (service.scene.fog instanceof THREE.FogExp2) {
+        service.scene.fog.density = 0.0015 + ctx.state.depth / 900 * 0.012;
+      }
       snow.position.y = ctx.state.whaleY;
       snow.rotation.y = time * 0.01;
       const lumeMaterial = lume.material as THREE.PointsMaterial;
@@ -126,33 +185,15 @@ function particleCloud(count: number, radius: number, color: THREE.ColorRepresen
   });
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(data, 3));
-  const material = new THREE.PointsMaterial({ color, size: seed === 'lume' ? 0.28 : 0.11, transparent: true, opacity: seed === 'lume' ? 0 : 0.35, depthWrite: false });
+  const material = new THREE.PointsMaterial({
+    color,
+    size: seed === 'lume' ? 0.28 : 0.11,
+    transparent: true,
+    opacity: seed === 'lume' ? 0 : 0.35,
+    depthWrite: false,
+  });
   return new THREE.Points(geometry, material);
 }
-
-const shots: Shot<WhaleFallState>[] = [
-  shot('surface-wide', 0, 10.5, [-28, 7, 20], [22, 5, 9], [0, 0, 0], 42),
-  shot('eye-goodbye', 10.5, 18, [8, 2.8, 6], [5, 1.8, 3.5], [5.2, -0.1, 0.65], 80),
-  shot('descent-profile', 18, 34, [-26, 8, 16], [-18, 11, 24], [0, 0, 0], 52),
-  shot('blue-hour', 34, 44, [20, 5, 20], [10, 7, 18], [0, -1, 0], 65),
-  shot('abyss-wide', 44, 58, [-34, 16, 28], [-42, 18, 31], [0, -2, 0], 40),
-  shot('floor-arrival', 58, 70, [25, 11, 22], [15, 8, 16], [0, -3, 0], 55),
-  shot('after-years', 70, 80, [-18, 7, 25], [-12, 11, 30], [0, -4, 0], 70),
-];
-
-function shot(id: string, t0: number, t1: number, from: Vec3Tuple, to: Vec3Tuple, targetOffset: Vec3Tuple, focalLengthMm: number): Shot<WhaleFallState> {
-  return {
-    id, t0, t1,
-    evaluate(_time, progress, state) {
-      const base = mixVec3(from, to, progress);
-      const position: Vec3Tuple = [base[0], base[1] + state.whaleY, base[2]];
-      const target: Vec3Tuple = [targetOffset[0], state.whaleY + targetOffset[1], targetOffset[2]];
-      return { position, target, focalLengthMm, focusDistance: 28, aperture: id === 'eye-goodbye' ? 1.8 : 4 };
-    },
-  };
-}
-
-const director = new Director(shots);
 
 const cues: AudioCue[] = [
   { id: 'surface-breath', time: 2.4, bus: 'ambience', trigger(engine, when) { engine.tone('ambience', when, 120, 0.35, 0.035); } },
@@ -170,6 +211,7 @@ export const whaleFallFilm: FilmDefinition<WhaleFallState> = {
   sample,
   rehearsal: [1.5, 10.5, 22, 42, 58, 64, 72, 78],
   modules: [
+    projectModule,
     () => createThreeRendererModule({ background: 0x03111a, maxPixelRatio: 1.5, adaptiveResolution: true }),
     whaleWorld,
     () => createThreeDirectorModule(director),

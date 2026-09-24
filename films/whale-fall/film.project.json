@@ -13,16 +13,18 @@
   },
   "tracks": {
     "whale.y": [[0, 0], [10, 0], [18, -60], [30, -260], [42, -540], [58, -830], [64, -895], [80, -900]],
+    "whale.pitch": [[0, 0], [18, 0.06], [42, 0.18], [64, 0.03], [80, 0]],
+    "whale.roll": [[0, 0], [28, 0.12], [50, -0.2], [64, 0.05], [80, 0]],
     "environment.light": [[0, 1], [10, 1], [22, 0.5], [42, 0.08], [60, 0.015], [80, 0.03]],
     "environment.bioluminescence": [[0, 0], [26, 0], [42, 0.4], [55, 1], [80, 0.75]]
   },
   "shots": [
-    {"id": "surface-wide", "range": [0, 10.5], "lensMm": 42},
-    {"id": "eye-goodbye", "range": [10.5, 18], "lensMm": 80},
-    {"id": "descent-profile", "range": [18, 34], "lensMm": 52},
-    {"id": "blue-hour", "range": [34, 44], "lensMm": 65},
-    {"id": "abyss-wide", "range": [44, 58], "lensMm": 40},
-    {"id": "floor-arrival", "range": [58, 70], "lensMm": 55},
-    {"id": "after-years", "range": [70, 80], "lensMm": 70}
+    {"id":"surface-wide","range":[0,10.5],"lensMm":42,"focusDistance":28,"aperture":4,"camera":{"from":[-28,7,20],"to":[22,5,9],"targetOffset":[0,0,0]}},
+    {"id":"eye-goodbye","range":[10.5,18],"lensMm":80,"focusDistance":28,"aperture":1.8,"camera":{"from":[8,2.8,6],"to":[5,1.8,3.5],"targetOffset":[5.2,-0.1,0.65]}},
+    {"id":"descent-profile","range":[18,34],"lensMm":52,"focusDistance":28,"aperture":4,"camera":{"from":[-26,8,16],"to":[-18,11,24],"targetOffset":[0,0,0]}},
+    {"id":"blue-hour","range":[34,44],"lensMm":65,"focusDistance":28,"aperture":4,"camera":{"from":[20,5,20],"to":[10,7,18],"targetOffset":[0,-1,0]}},
+    {"id":"abyss-wide","range":[44,58],"lensMm":40,"focusDistance":28,"aperture":4,"camera":{"from":[-34,16,28],"to":[-42,18,31],"targetOffset":[0,-2,0]}},
+    {"id":"floor-arrival","range":[58,70],"lensMm":55,"focusDistance":28,"aperture":4,"camera":{"from":[25,11,22],"to":[15,8,16],"targetOffset":[0,-3,0]}},
+    {"id":"after-years","range":[70,80],"lensMm":70,"focusDistance":28,"aperture":4,"camera":{"from":[-18,7,25],"to":[-12,11,30],"targetOffset":[0,-4,0]}}
   ]
 }

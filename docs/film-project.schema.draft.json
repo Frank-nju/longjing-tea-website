@@ -1,31 +1,61 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/executable-film-engine/film-project.schema.json",
-  "title": "Executable Film Project (draft)",
+  "title": "Executable Film Project",
   "type": "object",
-  "required": ["id", "title", "duration"],
+  "required": ["id", "title", "duration", "events", "tracks", "shots"],
   "properties": {
     "id": {"type": "string", "minLength": 1},
     "title": {"type": "string", "minLength": 1},
     "duration": {"type": "number", "exclusiveMinimum": 0},
     "events": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
-    "tracks": {"type": "object"},
+    "tracks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [{"type": "number"}, {"type": "number"}],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
     "shots": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "range"],
+        "required": ["id", "range", "lensMm"],
         "properties": {
-          "id": {"type": "string"},
+          "id": {"type": "string", "minLength": 1},
           "range": {
             "type": "array",
             "prefixItems": [{"type": "number"}, {"type": "number"}],
             "minItems": 2,
             "maxItems": 2
           },
-          "lensMm": {"type": "number", "exclusiveMinimum": 0}
+          "lensMm": {"type": "number", "exclusiveMinimum": 0},
+          "focusDistance": {"type": "number", "exclusiveMinimum": 0},
+          "aperture": {"type": "number", "exclusiveMinimum": 0},
+          "camera": {
+            "type": "object",
+            "required": ["from", "to", "targetOffset"],
+            "properties": {
+              "from": {"$ref": "#/$defs/vec3"},
+              "to": {"$ref": "#/$defs/vec3"},
+              "targetOffset": {"$ref": "#/$defs/vec3"}
+            }
+          }
         }
       }
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number"}],
+      "minItems": 3,
+      "maxItems": 3
     }
   }
 }

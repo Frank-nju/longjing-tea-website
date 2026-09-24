@@ -51,15 +51,17 @@
 
 ## Phase 4 — authoring system
 
-- [ ] Film Project schema / JSON schema
-- [ ] declarative track system
-- [ ] timeline editor
-- [ ] curve editor
-- [ ] shot inspector
+- [x] Film Project schema / JSON schema
+- [x] declarative numeric track system
+- [x] live FilmProjectStore + serialization
+- [x] timeline editor baseline
+- [x] shot inspector baseline
+- [x] numeric keyframe inspector baseline
+- [ ] curve editor + interpolation modes
 - [ ] viewport camera tools
-- [ ] event/cue markers
-- [ ] hot reload
-- [ ] undo/redo and Git-friendly serialization
+- [ ] event/cue editing
+- [ ] hot reload / persistent save-back
+- [ ] undo/redo transaction history
 
 ## Phase 5 — AI film compilation
 

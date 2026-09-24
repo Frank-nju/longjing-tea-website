@@ -1,6 +1,6 @@
 {
   "name": "executable-film-engine",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -13,7 +13,7 @@
     "build": "npm run build -w @efe/studio",
     "build:single": "npm run build && node tools/package-single-html.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:core": "tsx --test packages/core/test/*.test.ts packages/fx/test/*.test.ts",
+    "test:core": "tsx --test packages/core/test/*.test.ts packages/fx/test/*.test.ts packages/project/test/*.test.ts",
     "test:browser": "playwright test tests/cold-seek.spec.ts",
     "test:visual": "playwright test tests/visual-regression.spec.ts",
     "render:frame": "npm run build && node tools/render-frame.mjs",
