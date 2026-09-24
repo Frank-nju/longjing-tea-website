@@ -14,9 +14,10 @@ const project: FilmProjectData = {
   ],
 };
 
-test('project tracks sample from absolute story time', () => {
+test('project tracks sample from absolute story time using engine curve semantics', () => {
   const store = new FilmProjectStore(project);
-  assert.equal(store.sampleTrack('x', 2.5), 2.5);
+  assert.equal(store.sampleTrack('x', 2.5), 1.5625);
+  assert.equal(store.sampleTrack('x', 5), 5);
 });
 
 test('shot mutations are live and serializable', () => {
