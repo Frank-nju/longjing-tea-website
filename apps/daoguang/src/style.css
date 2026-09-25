@@ -125,3 +125,12 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+.viewport::after { content:'';position:absolute;inset:0;background:#050807;opacity:var(--film-fade,0);pointer-events:none;z-index:2; }
+.subtitle { left:6%; bottom:5%; width:88%; text-align:center; }
+.subtitle-kicker { justify-content:center; font-size:10px; }
+.subtitle h1 { font-size:clamp(19px,2vw,28px); margin:8px 0; letter-spacing:.12em; }
+.subtitle p { margin:0 auto;max-width:48em;font-size:clamp(13px,1.3vw,17px);line-height:1.7; }
+.subtitle.chapter-opening h1 { font-size:clamp(23px,2.6vw,36px); }
+.viewport-vignette { background:radial-gradient(ellipse at 50% 40%,transparent 48%,#06090850),linear-gradient(0deg,#060908df,transparent 25%); }
+@media(max-width:720px) { .subtitle {left:5%;width:90%;bottom:5%;} .subtitle h1,.subtitle.chapter-opening h1 {font-size:23px;} .subtitle p {font-size:13px;} }

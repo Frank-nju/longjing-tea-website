@@ -64,6 +64,7 @@ test('interactive mode pauses for a labeled choice, rejoins history, and can rep
 });
 
 test('single HTML runs in isolation without network access and retains captions', async ({ page }) => {
+  test.setTimeout(120_000);
   const externalRequests: string[] = [];
   const pageErrors: string[] = [];
   const isolatedDir = await mkdtemp(join(tmpdir(), 'daoguang-offline-'));
@@ -85,6 +86,7 @@ test('single HTML runs in isolation without network access and retains captions'
       runtime.seek(211);
     });
     await expect(page.locator('#beatTitle')).toHaveText('舰队驶入帝国腹地');
+    await page.waitForFunction(() => (window as any).__DAOGUANG_SOUND__.diagnostics.ready, null, { timeout: 90_000 });
     expect(externalRequests).toEqual([]);
     expect(pageErrors).toEqual([]);
   } finally {
@@ -140,4 +142,30 @@ test('rendered chapter and branch frames are identical after unrelated seeks', a
   for (const { time, identical } of results) {
     expect(identical, `pixels at ${time}s must not depend on earlier seeks`).toBe(true);
   }
+});
+
+
+test('soundtrack resumes at story time and never stacks after seek or pause', async ({ page }) => {
+  test.setTimeout(120_000);
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('button', { name: '观看线性正片' }).click();
+  await page.waitForFunction(() => (window as any).__DAOGUANG_SOUND__.diagnostics.ready, null, { timeout: 90_000 });
+  const results = await page.evaluate(() => {
+    const runtime = (window as any).__DAOGUANG_RUNTIME__;
+    const sound = (window as any).__DAOGUANG_SOUND__;
+    runtime.pause();
+    const paused = sound.diagnostics.activeSources;
+    for (let i = 0; i < 8; i++) { sound.reset(60); sound.sync(60, true, 'dinghai', 'A'); }
+    const single = sound.diagnostics.activeSources;
+    sound.reset(160); sound.sync(160, true, 'branch', 'B');
+    const battle = sound.diagnostics.activeSources;
+    sound.sync(160, true, 'branch', 'A');
+    const peace = sound.diagnostics.activeSources;
+    sound.reset(160);
+    return { paused, single, battle, peace, stopped: sound.diagnostics.activeSources, duration: sound.diagnostics.duration };
+  });
+  expect(results).toEqual({ paused: 0, single: 1, battle: 2, peace: 1, stopped: 0, duration: 270 });
+  expect(errors).toEqual([]);
 });

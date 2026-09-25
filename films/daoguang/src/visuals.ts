@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
 
 type Surface = 'wood' | 'canvas' | 'stone' | 'ground';
 const maps = new Map<Surface, THREE.CanvasTexture>();
@@ -154,35 +155,61 @@ export function makeDetailedShip(parent: THREE.Object3D, options: { x: number; z
   }
   beam(ship, new THREE.Vector3(5.7, 2.6, 0), new THREE.Vector3(10.1, 4.2, 0), 0.1, wood);
   rope([10.1, 4.2, 0], [3.7, 10, 0]); rope([10.1, 4.2, 0], [6.7, 0.5, 0]);
+  if(!options.junk) {
+    for(const points of [[[4,9,0],[9.7,4.2,0],[5.6,4.2,0]],[[.2,10.8,0],[3.2,6,0],[.2,5.5,0]]]) {
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(points.flat(),3));
+      geo.setAttribute('uv',new THREE.Float32BufferAttribute([0,1,1,0,0,0],2));geo.computeVertexNormals();mesh(ship,geo,cloth);
+    }
+  }
   const rigging = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ropes), ropeMaterial); ship.add(rigging);
+  const foam = new THREE.Mesh(new THREE.PlaneGeometry(38, 15), new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    uniforms: { time: { value: 0 } },
+    vertexShader: `varying vec2 wakeUv; void main(){wakeUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader: `uniform float time; varying vec2 wakeUv;
+      void main(){vec2 p=(wakeUv-.5)*vec2(38.,15.)+vec2(-7.,0.);
+      float hull=1.85*pow(max(.002,1.-pow(p.x/7.4,2.)),.57);
+      float edge=exp(-pow((abs(p.y)-hull-.18)*3.4,2.));
+      float taper=(1.-smoothstep(5.8,8.,abs(p.x)));
+      float ripple=.5+.5*sin(p.x*8.-time*1.5+sin(p.y*13.));
+      float aft=max(0.,-p.x-6.);
+      float wake=exp(-pow((abs(p.y)-1.2-aft*.19)*2.2,2.))*(1.-smoothstep(2.,19.,aft))*step(0.01,aft);
+      float alpha=(edge*taper+wake*.6)*(.13+.19*ripple);
+      gl_FragColor=vec4(.66,.74,.69,alpha);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+      }`,
+  }));
+  foam.rotation.x=-Math.PI/2; foam.position.set(-7,.03,0);
+  foam.userData.waterFoam=true; ship.add(foam);
   return ship;
 }
 
 export function makeOcean(parent: THREE.Object3D, color = 0x294b55): THREE.Mesh {
-  const material = new THREE.ShaderMaterial({
-    uniforms: { time: { value: 0 }, deep: { value: new THREE.Color(color) } },
-    vertexShader: `uniform float time; varying vec3 world; varying vec3 normalW;
-      void main() { vec3 p=position; float a=p.x*.16+p.y*.09+time*.55; float b=p.x*.31-p.y*.23-time*.8;
-      p.z += sin(a)*.14+sin(b)*.055; world=(modelMatrix*vec4(p,1.)).xyz;
-      normalW=normalize(mat3(modelMatrix)*vec3(-cos(a)*.0224-cos(b)*.017, -cos(a)*.0126+cos(b)*.01265,1.));
-      gl_Position=projectionMatrix*viewMatrix*vec4(world,1.); }`,
-    fragmentShader: `uniform vec3 deep; uniform float time; varying vec3 world; varying vec3 normalW;
-      void main(){ vec3 n=normalize(normalW+vec3(sin(world.x*3.+world.z*2.+time)*.038,0.,cos(world.z*4.-time)*.045));
-      vec3 v=normalize(cameraPosition-world); float fresnel=pow(1.-max(dot(n,v),0.),3.);
-      vec3 sky=mix(vec3(.10,.18,.21),vec3(.27,.36,.37),fresnel);
-      float sun=pow(max(dot(reflect(-normalize(vec3(-.5,.8,.35)),n),v),0.),100.);
-      float streak=sin(world.x*.8+world.z*1.3+time)*.5+.5;
-      vec3 c=mix(deep*.66,sky,.22+fresnel*.7)+vec3(1.,.8,.52)*sun*.9;
-      c+=vec3(.025,.035,.035)*streak;
-      float haze=1.-exp(-length(cameraPosition-world)*.004);
-      gl_FragColor=vec4(mix(c,vec3(.32,.40,.40),haze),1.);
+  const mobile=window.innerWidth<720;
+  const water=new Reflector(new THREE.PlaneGeometry(500,400,100,80),{
+    color,textureWidth:mobile?512:1024,textureHeight:mobile?256:512,clipBias:.003,multisample:0,
+    shader:{name:'HistoricalOcean',uniforms:{color:{value:new THREE.Color(color)},tDiffuse:{value:null},textureMatrix:{value:new THREE.Matrix4()},time:{value:0}},
+      vertexShader:`uniform mat4 textureMatrix;uniform float time;varying vec4 reflectionUv;varying vec3 world;
+      void main(){vec3 p=position;p.z+=sin(p.x*.16+p.y*.09+time*.7)*.13+sin(p.x*.31-p.y*.23-time)*.055;
+      reflectionUv=textureMatrix*vec4(position,1.);world=(modelMatrix*vec4(p,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(world,1.);}`,
+      fragmentShader:`uniform sampler2D tDiffuse;uniform vec3 color;uniform float time;varying vec4 reflectionUv;varying vec3 world;
+      void main(){vec2 ripple=vec2(sin(world.x*.9+world.z*.7+time*1.4),cos(world.z*1.1-world.x*.3-time))*.008;
+      vec2 uv=reflectionUv.xy/reflectionUv.w+ripple;
+      vec3 reflected=texture2D(tDiffuse,clamp(uv,.002,.998)).rgb;
+      vec3 n=normalize(vec3(ripple.x*12.,1.,ripple.y*12.));vec3 v=normalize(cameraPosition-world);
+      float fresnel=.22+.65*pow(1.-max(dot(n,v),0.),3.);
+      float glint=pow(max(dot(reflect(-normalize(vec3(-.5,.8,.35)),n),v),0.),90.);
+      vec3 c=mix(color*.65,reflected,fresnel)+vec3(.9,.74,.46)*glint*.5;
+      float haze=1.-exp(-length(cameraPosition-world)*.002);c=mix(c,vec3(.34,.41,.42),haze);
+      gl_FragColor=vec4(c,1.);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
       }`,
+    },
   });
-  const water = mesh(parent, new THREE.PlaneGeometry(500, 400, 100, 80), material, [0, -0.18, 0]);
-  water.rotation.x = -Math.PI / 2; water.castShadow = false; water.userData.ocean = true;
-  return water;
+  water.position.y=-.18;water.rotation.x=-Math.PI/2;water.userData.ocean=true;
+  parent.add(water);return water;
 }
 
 export function makeLandscape(parent: THREE.Object3D, color = 0x55584a): THREE.Mesh {
@@ -218,11 +245,39 @@ export function makeRidge(radius: number, height: number, seed: number, color: n
   return hill;
 }
 
+export function makeSmoke(parent: THREE.Object3D, x: number, y: number, z: number, seed: number): void {
+  const material = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    uniforms: { time: { value: 0 }, seed: { value: seed } },
+    vertexShader: `varying vec2 smokeUv; void main(){smokeUv=uv;vec4 center=modelViewMatrix*vec4(0.,0.,0.,1.);vec2 size=vec2(length(modelMatrix[0].xyz),length(modelMatrix[1].xyz));center.xy+=position.xy*size;gl_Position=projectionMatrix*center;}`,
+    fragmentShader: `uniform float time; uniform float seed; varying vec2 smokeUv;
+      float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+      float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+      void main(){vec2 p=smokeUv*2.-1.;vec2 q=smokeUv*4.+vec2(seed,time*-.065);
+      float n=noise(q)*.6+noise(q*2.1)*.27+noise(q*4.3)*.13;
+      float edge=1.-smoothstep(.2,1.,length(p*vec2(.9,1.)));
+      float alpha=edge*smoothstep(.16,.76,n)*.48;
+      gl_FragColor=vec4(mix(vec3(.28,.29,.27),vec3(.58,.57,.51),n),alpha);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+      }`,
+  });
+  const smoke = new THREE.Mesh(new THREE.PlaneGeometry(10, 9), material);
+  smoke.position.set(x,y,z); smoke.userData={smoke:true,baseY:y}; parent.add(smoke);
+}
+
 export function makeSky(): THREE.Mesh {
   return new THREE.Mesh(new THREE.SphereGeometry(800, 32, 16), new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false,
     vertexShader: `varying vec3 direction; void main(){direction=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader: `varying vec3 direction; void main(){vec3 d=normalize(direction);float h=max(d.y,0.);vec3 c=mix(vec3(.53,.58,.56),vec3(.15,.25,.31),pow(h,.55));float sun=pow(max(dot(d,normalize(vec3(-.5,.8,.35))),0.),180.);c+=vec3(.9,.65,.32)*sun;gl_FragColor=vec4(c,1.);
+    fragmentShader: `varying vec3 direction;
+    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+    void main(){vec3 d=normalize(direction);float h=max(d.y,0.);vec3 c=mix(vec3(.53,.58,.56),vec3(.15,.25,.31),pow(h,.55));
+    vec2 p=d.xz/(.18+h)*2.8;float n=noise(p)*.55+noise(p*2.03)*.28+noise(p*4.07)*.17;
+    float cloud=smoothstep(.45,.72,n)*smoothstep(0.,.17,h);
+    c=mix(c,mix(vec3(.37,.42,.43),vec3(.72,.71,.65),n),cloud*.65);
+    float sun=pow(max(dot(d,normalize(vec3(-.5,.8,.35))),0.),180.);c+=vec3(.9,.65,.32)*sun;gl_FragColor=vec4(c,1.);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
     }`,
@@ -268,7 +323,7 @@ export function detailedFort(parent: THREE.Object3D, x: number, z: number, scale
   mesh(gate, new THREE.BoxGeometry(5.5, 2.6, 3.6), stone, [0, 1.3, 0]);
   mesh(gate, new THREE.BoxGeometry(1.6, 2.3, .08), wood, [0, 1.15, 1.84]);
   for (let i = -2; i <= 2; i++) mesh(gate, new THREE.BoxGeometry(.035, 2.1, .04), iron, [i * .28, 1.13, 1.9]);
-  tiledRoof(gate, 7.4, 5.3, 2.65);
+  tiledRoof(gate, 7.4, 5.3, 2.25);
   for (const cx of [-8, -5, 5, 8]) {
     mesh(fort, new THREE.BoxGeometry(.72, .45, 1.7), wood, [cx, 3.2, 1.8]);
     beam(fort, new THREE.Vector3(cx, 3.68, 1.3), new THREE.Vector3(cx, 3.85, 4.6), .18, iron);

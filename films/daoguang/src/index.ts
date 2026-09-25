@@ -5,7 +5,8 @@ import { createThreeDirectorModule, createThreeRendererModule, THREE_SERVICE, ty
 import type { FilmDefinition, FilmModule } from '@efe/core';
 import projectJson from '../film.project.json';
 import { beatAt, chapterAt } from './story';
-import { makeDetailedShip as makeShip, makeOcean as water, makeLandscape as terrain, makeRidge, makeSky, surface, disposeSurfaces, tiledRoof, detailedFort as makeFort, furnishCourt } from './visuals';
+import { makeDetailedShip as makeShip, makeOcean as water, makeLandscape as terrain, makeRidge, makeSky, makeSmoke, surface, disposeSurfaces, tiledRoof, detailedFort as makeFort, furnishCourt } from './visuals';
+import { cannonEvents, shipTravel, updateAction, addAction } from './cinema';
 
 export type FilmMode = 'linear' | 'interactive';
 export type Decision = 'A' | 'B';
@@ -39,10 +40,20 @@ function buildShots(): Shot<DaoguangState>[] {
       id: source.id,
       t0: source.range[0],
       t1: source.range[1],
-      evaluate(_time, progress): CameraRig {
+      evaluate(time, progress): CameraRig {
+        const scene = sceneForShot[source.id.split('/')[0]] ?? 'coast';
+        const ease = progress * progress * (3 - 2 * progress);
+        const position = [...mixVec3(camera.from, camera.to, ease)] as [number, number, number];
+        const target = [...camera.targetOffset] as [number, number, number];
+        if (/waterline|broadside|\/ship|\/bow/.test(source.id)) {
+          const travel = shipTravel(scene, time); position[0] += travel; target[0] += travel;
+        }
+        const shake = cannonEvents.filter(e => e.scene === scene).reduce((n, e) => n + (time >= e.t ? Math.exp(-(time-e.t)*9) : 0), 0);
+        position[1] += Math.sin(time*53)*shake*.12;
+        position[0] += Math.sin(time*71)*shake*.08;
         return {
-          position: mixVec3(camera.from, camera.to, progress),
-          target: camera.targetOffset,
+          position,
+          target,
           focalLengthMm: source.lensMm,
           focusDistance: source.focusDistance,
           aperture: source.aperture,
@@ -100,7 +111,7 @@ function city(parent: THREE.Object3D, x: number, z: number, scale = 1): void {
     const x2 = i * 6;
     box(group, [4.6, 3.4, 4], [x2, 1.7, -3 - Math.abs(i)], wall);
     const roofGroup = new THREE.Group(); roofGroup.position.set(x2, 0, -3 - Math.abs(i));
-    tiledRoof(roofGroup, 5.8, 5.2, 3.4); group.add(roofGroup);
+    tiledRoof(roofGroup, 5.8, 5.2, 3.0); group.add(roofGroup);
   }
   parent.add(group);
 }
@@ -118,11 +129,11 @@ function buildCoast(): THREE.Group {
     const hill = makeRidge(20 + i * 2, 10 + i, i, i % 2 ? 0x525746 : 0x68604c);
     hill.position.set(-64 + i * 22, 3 + i % 3, -60 - Math.sin(i) * 7); hill.rotation.z = 0.18; root.add(hill);
   }
-  makeFort(root, -20, -30, 1.2); makeFort(root, 22, -34, 0.86);
+  makeFort(root, -20, -43, 1.2); makeFort(root, 22, -46, 0.86);
   const barge = makeShip(root, { x: -8, z: 5, junk: true, color: 0x3b3429, scale: 1.2, sails: 1 });
   barge.rotation.y = -0.25;
-  for (let i = 0; i < 9; i++) box(root, [1.4, 0.8, 1.2], [-12 + i % 3 * 2, 0.4, 3 + Math.floor(i / 3) * 2], mat(0x75583b));
-  for (let i = 0; i < 7; i++) makeFigure(root, -28 + i * 8, -20 + i % 3 * 2, i % 2 ? 0x5b5140 : 0x77705f, 0.85);
+  for (let i = 0; i < 9; i++) box(barge, [.9, .6, .8], [-2 + i % 3 * 1.05, 2.7, -.9 + Math.floor(i / 3) * .9], surface(0x75583b,'wood'));
+  for (let i = 0; i < 7; i++) makeFigure(root, -28 + i * 8, -43 + i % 3 * 1.2, i % 2 ? 0x5b5140 : 0x77705f, 0.85);
   return root;
 }
 
@@ -131,9 +142,8 @@ function buildDinghai(): THREE.Group {
   city(root, -33, -33, 1.2); makeFort(root, 20, -28, 1.2);
   makeShip(root, { x: -6, z: 5, color: 0x30383b, scale: 1.36 });
   makeShip(root, { x: 32, z: 17, color: 0x30383b, scale: 0.78 });
-  for (let i = 0; i < 9; i++) {
-    const smoke = new THREE.Mesh(new THREE.SphereGeometry(1.7 + i % 3 * 0.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0x8a8176, transparent: true, opacity: 0.16 }));
-    smoke.position.set(-25 + i * 6, 7 + i % 4 * 2, -19 - i % 2 * 7); smoke.userData.baseY = smoke.position.y; smoke.userData.smoke = true; root.add(smoke);
+  for (let i = 0; i < 3; i++) {
+    makeSmoke(root, -25 + i * 6, 7 + i % 4 * 2, -19 - i % 2 * 7, i * 3.71);
   }
   return root;
 }
@@ -180,14 +190,6 @@ function buildBranch(route: 'A' | 'B' | 'both'): THREE.Group {
     box(root, [0.18, 7, 0.18], [0, 4, -15], mat(0x624b38));
     const flag = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 1.4), new THREE.MeshStandardMaterial({ color: 0x9b4434, side: THREE.DoubleSide }));
     flag.position.set(1.1, 6.3, -15); root.add(flag);
-  } else if (route === 'B') {
-    for (let i = 0; i < 4; i++) {
-      const flash = new THREE.Mesh(new THREE.SphereGeometry(1.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xc27b3d, transparent: true, opacity: 0.23 }));
-      flash.position.set(-22 + i * 12, 5 + i % 2 * 2, -15); flash.userData.baseY = flash.position.y; flash.userData.smoke = true; root.add(flash);
-    }
-  } else {
-    const dividerMat = mat(0x8a7757); dividerMat.transparent = true; dividerMat.opacity = 0.48;
-    box(root, [0.18, 7, 22], [0, 3.5, 0], dividerMat);
   }
   return root;
 }
@@ -212,7 +214,6 @@ function buildYangtze(): THREE.Group {
   city(root, 43, -30, 1.5);
   const fleet = makeShip(root, { x: -5, z: 8, color: 0x2f3c3d, scale: 1.38 }); fleet.rotation.y = 0.04;
   makeShip(root, { x: 27, z: 24, color: 0x303a3d, scale: 0.72 });
-  tube(root, [new THREE.Vector3(-33, 0.1, 26), new THREE.Vector3(-15, 0.1, 12), new THREE.Vector3(5, 0.1, 4), new THREE.Vector3(26, 0.1, -9), new THREE.Vector3(43, 0.1, -20)], 0xa34837, 0.1);
   for (let i = 0; i < 6; i++) makeFigure(root, 40 + i % 3 * 2, -15 + Math.floor(i / 3) * 2, 0x55493a, 0.8);
   return root;
 }
@@ -221,10 +222,25 @@ function buildTreaty(): THREE.Group {
   const root = new THREE.Group(); water(root, 0x283f49);
   const ship = makeShip(root, { x: -16, z: -8, scale: 0.93 }); ship.rotation.y = -0.18;
   const ship2 = makeShip(root, { x: 19, z: -20, color: 0x30383b, scale: 0.6 }); ship2.rotation.y = 0.35;
+  box(root, [25, 1.1, 19], [0, -0.4, 3], surface(0x746047, 'wood'));
+  for (const z of [-6,12]) {
+    box(root, [25,.16,.18], [0,1.8,z], surface(0x473529,'wood'));
+    for(let x=-12;x<=12;x+=2) box(root,[.12,1.8,.12],[x,.9,z],surface(0x473529,'wood'));
+  }
   box(root, [10, 1, 6], [0, 2.6, 3], mat(0x543d2c));
   for (const x of [-4.4, 4.4]) for (const z of [0.7, 5.3]) box(root, [0.45, 2.2, 0.45], [x, 1.1, z], mat(0x473528));
   box(root, [7, 0.14, 4.2], [0, 3.18, 3], mat(0xd4c39d));
-  for (let i = 0; i < 5; i++) tube(root, [new THREE.Vector3(-2.5, 3.28, 1.5 + i * 0.6), new THREE.Vector3(2.5, 3.28, 1.5 + i * 0.6)], 0x584a39, 0.02);
+  const paper=document.createElement('canvas');paper.width=1024;paper.height=640;
+  const ink=paper.getContext('2d')!;ink.fillStyle='#ccbb94';ink.fillRect(0,0,1024,640);
+  ink.strokeStyle='#9b805d';ink.lineWidth=3;ink.strokeRect(35,35,954,570);
+  ink.fillStyle='#463c2c';ink.textAlign='center';ink.font='48px serif';ink.fillText('南京條約',512,108);
+  ink.font='24px serif';ink.fillText('道光二十二年 · 一八四二',512,158);
+  ink.textAlign='left';ink.font='27px serif';
+  ['五口通商','割讓香港島','賠款及通商條款'].forEach((line,i)=>ink.fillText(line,105,245+i*70));
+  ink.font='21px serif';ink.fillStyle='#97523c';ink.fillText('條款結構示意 · 非原件摹本',105,548);
+  const map=new THREE.CanvasTexture(paper);map.colorSpace=THREE.SRGBColorSpace;
+  const page=new THREE.Mesh(new THREE.PlaneGeometry(7,4.2),new THREE.MeshStandardMaterial({map,roughness:.95}));
+  page.rotation.x=-Math.PI/2;page.position.set(0,3.26,3);page.userData.ownedMap=map;root.add(page);
   cylinder(root, 0.35, 0.42, 0.55, [3.2, 3.56, 4.4], mat(0x94342b));
   makeFigure(root, -3.3, 8, 0x555249, 0.88); makeFigure(root, 3.3, 8, 0x4c4034, 0.88);
   return root;
@@ -278,32 +294,34 @@ function createWorld(): FilmModule<DaoguangState> {
         branchA: buildBranch('A'), branchB: buildBranch('B'), branchBoth: buildBranch('both'),
         constraints: buildConstraints(), yangtze: buildYangtze(), treaty: buildTreaty(), reflection: buildReflection(),
       };
-      frame(groups.coast, textures[0], [-42, 13, -52], 9);
-      frame(groups.dinghai, textures[1], [35, 12, -30], 6.8);
-      frame(groups.treaty, textures[2], [0, 15, -24], 7.5);
-      for (const [name, group] of Object.entries(groups)) { group.visible = name === 'coast'; service.scene.add(group); }
+      for (const [name, group] of Object.entries(groups)) {
+        addAction(group, name);
+        group.visible = name === 'coast'; service.scene.add(group);
+      }
     },
     update(time, _dt, ctx) {
       if (!service) return;
       const state = ctx.state;
       const shot = daoguangProjectStore.shotAt(time)?.id ?? 'opium-coast';
-      const scene = sceneForShot[shot] ?? 'coast';
+      const scene = sceneForShot[shot.split('/')[0]] ?? 'coast';
       const active = scene === 'branch' ? state.route === 'both' ? 'branchBoth' : state.route === 'A' ? 'branchA' : 'branchB' : scene;
       for (const [name, group] of Object.entries(groups)) group.visible = name === active;
       const group = groups[active];
+      updateAction(group, time, active);
       group.traverse((object) => {
-        if (object instanceof THREE.Mesh && object.userData.ocean) (object.material as THREE.ShaderMaterial).uniforms.time.value = time;
+        if (object instanceof THREE.Mesh && (object.userData.ocean || object.userData.waterFoam || object.userData.smoke) && object.material instanceof THREE.ShaderMaterial) (object.material as THREE.ShaderMaterial).uniforms.time.value = time;
         if (object instanceof THREE.Mesh && object.userData.sailBase) {
           const p = object.geometry.getAttribute('position');
           const base = object.userData.sailBase as Float32Array;
           for (let i = 0; i < p.count; i++) {
-            const ripple = Math.sin(base[i * 3 + 1] * 3 + time * 1.4) * 0.026;
+            const ripple = Math.sin(base[i * 3 + 1] * 3 + time * 1.4) * 0.10;
             p.setXYZ(i, base[i * 3] + (object.userData.junk ? 0 : ripple), base[i * 3 + 1], base[i * 3 + 2] + (object.userData.junk ? ripple : 0));
           }
           p.needsUpdate = true;
         }
         if (object instanceof THREE.Group && object.userData.floating) {
-          object.position.y = Math.sin(time * 0.6 + object.userData.baseX) * 0.11;
+          object.position.x = object.userData.baseX + shipTravel(active, time);
+          object.position.y = Math.sin(time * 0.6 + object.userData.baseX) * 0.16;
           object.rotation.z = Math.sin(time * 0.42 + object.userData.baseZ) * 0.008;
         }
         if (object instanceof THREE.Mesh && object.userData.smoke) {
@@ -319,12 +337,12 @@ function createWorld(): FilmModule<DaoguangState> {
       fog.color.set(dark); fog.density = indoors ? 0.009 : 0.0032;
       (service.scene.background as THREE.Color).set(dark);
       service.renderer.toneMappingExposure = indoors ? 1.2 : 0.95;
-      if (scene === 'coast') groups.coast.rotation.y = Math.sin(time * 0.025) * 0.018;
-      if (scene === 'yangtze') groups.yangtze.rotation.y = Math.sin(time * 0.015) * 0.018;
+
     },
     dispose() {
       service?.scene.traverse((object) => {
-        if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments) {
+        if (object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points) {
+          if (object.userData.ocean) (object as THREE.Mesh & { dispose(): void }).dispose();
           object.geometry.dispose();
           if (object.userData.ownedMap) (object.userData.ownedMap as THREE.Texture).dispose();
           (Array.isArray(object.material) ? object.material : [object.material]).forEach((material) => material.dispose());
@@ -354,7 +372,7 @@ export function createDaoguangFilm(initialMode: FilmMode = 'linear') {
       state.t = time;
       state.chapter = chapterAt(time).id;
       state.shot = shot.id;
-      state.scene = sceneForShot[shot.id] ?? 'coast';
+      state.scene = sceneForShot[shot.id.split('/')[0]] ?? 'coast';
       state.progress = Math.max(0, Math.min(1, (time - shot.range[0]) / (shot.range[1] - shot.range[0])));
       state.mode = mode;
       state.decision = decision;

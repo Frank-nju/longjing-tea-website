@@ -121,272 +121,920 @@
   },
   "shots": [
     {
-      "id": "opium-coast",
+      "id": "opium-coast/approach",
       "range": [
         0,
-        55
+        12
       ],
-      "lensMm": 36,
-      "focusDistance": 35,
-      "aperture": 5.6,
-      "camera": {
-        "from": [
-          27,
-          16,
-          44
-        ],
-        "to": [
-          22,
-          13,
-          38
-        ],
-        "targetOffset": [
-          -7,
-          4,
-          0
-        ]
-      }
-    },
-    {
-      "id": "dinghai",
-      "range": [
-        55,
-        75
-      ],
-      "lensMm": 38,
-      "focusDistance": 24,
+      "lensMm": 32,
+      "focusDistance": 25,
       "aperture": 4,
       "camera": {
-        "from": [
-          30,
-          17,
-          45
-        ],
         "to": [
-          24,
-          14,
+          25,
+          12,
           39
         ],
         "targetOffset": [
-          -5,
-          5,
+          -8,
+          4,
           0
+        ],
+        "from": [
+          54,
+          29,
+          66
         ]
       }
     },
     {
-      "id": "dispatch-map",
+      "id": "opium-coast/waterline",
       "range": [
-        75,
-        96
+        12,
+        24
       ],
-      "lensMm": 42,
-      "focusDistance": 30,
-      "aperture": 5.6,
+      "lensMm": 28,
+      "focusDistance": 25,
+      "aperture": 4,
       "camera": {
-        "from": [
-          1,
-          19,
-          24
-        ],
         "to": [
-          0,
-          17,
-          19
-        ],
-        "targetOffset": [
-          0,
-          0,
-          0
-        ]
-      }
-    },
-    {
-      "id": "memorial-desk",
-      "range": [
-        96,
-        115
-      ],
-      "lensMm": 46,
-      "focusDistance": 18,
-      "aperture": 2.8,
-      "camera": {
-        "from": [
-          10,
-          12,
-          20
-        ],
-        "to": [
-          7,
-          10,
+          -6,
+          3.8,
           17
         ],
         "targetOffset": [
-          0,
-          3,
-          0
+          -4,
+          4,
+          5
+        ],
+        "from": [
+          -27,
+          2.8,
+          16
         ]
       }
     },
     {
-      "id": "decision",
+      "id": "opium-coast/harbour",
       "range": [
-        115,
-        135
+        24,
+        38
       ],
-      "lensMm": 43,
+      "lensMm": 27,
       "focusDistance": 25,
       "aperture": 4,
       "camera": {
-        "from": [
-          8,
-          11,
-          21
+        "to": [
+          -14,
+          17,
+          -3
         ],
+        "targetOffset": [
+          -20,
+          3,
+          -30
+        ],
+        "from": [
+          -30,
+          10,
+          4
+        ]
+      }
+    },
+    {
+      "id": "memorial-desk/forewarning",
+      "range": [
+        38,
+        47
+      ],
+      "lensMm": 38,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
         "to": [
           5,
+          7,
+          12
+        ],
+        "targetOffset": [
+          0,
+          3.5,
+          0
+        ],
+        "from": [
+          12,
           9,
+          15
+        ]
+      }
+    },
+    {
+      "id": "memorial-desk/ink",
+      "range": [
+        47,
+        55
+      ],
+      "lensMm": 36,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          3,
+          5.8,
+          8
+        ],
+        "targetOffset": [
+          1,
+          3.5,
+          0.5
+        ],
+        "from": [
+          6,
+          6.5,
+          7
+        ]
+      }
+    },
+    {
+      "id": "dinghai/fleet",
+      "range": [
+        55,
+        61
+      ],
+      "lensMm": 30,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          14,
+          8,
+          27
+        ],
+        "targetOffset": [
+          -4,
+          5,
+          5
+        ],
+        "from": [
+          26,
+          13,
+          35
+        ]
+      }
+    },
+    {
+      "id": "dinghai/broadside",
+      "range": [
+        61,
+        66
+      ],
+      "lensMm": 29,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -6,
+          3.5,
+          17
+        ],
+        "targetOffset": [
+          -3,
+          3,
+          4
+        ],
+        "from": [
+          -17,
+          3,
+          16
+        ]
+      }
+    },
+    {
+      "id": "dinghai/battery",
+      "range": [
+        66,
+        70
+      ],
+      "lensMm": 30,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          26,
+          7,
+          -9
+        ],
+        "targetOffset": [
+          20,
+          4,
+          -28
+        ],
+        "from": [
+          34,
+          8,
+          -6
+        ]
+      }
+    },
+    {
+      "id": "dinghai/withdraw",
+      "range": [
+        70,
+        75
+      ],
+      "lensMm": 28,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          26,
+          22,
+          38
+        ],
+        "targetOffset": [
+          -2,
+          4,
+          -5
+        ],
+        "from": [
+          8,
+          13,
+          19
+        ]
+      }
+    },
+    {
+      "id": "dispatch-map/south",
+      "range": [
+        75,
+        82
+      ],
+      "lensMm": 34,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -8,
+          11,
+          13
+        ],
+        "targetOffset": [
+          -8,
+          1,
+          5
+        ],
+        "from": [
+          -16,
+          9,
+          15
+        ]
+      }
+    },
+    {
+      "id": "dispatch-map/route",
+      "range": [
+        82,
+        90
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          6,
+          19,
+          10
+        ],
+        "targetOffset": [
+          0,
+          1,
+          0
+        ],
+        "from": [
+          -7,
+          17,
+          15
+        ]
+      }
+    },
+    {
+      "id": "dispatch-map/north",
+      "range": [
+        90,
+        96
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          14,
+          8,
+          4
+        ],
+        "targetOffset": [
+          10,
+          1,
+          -6
+        ],
+        "from": [
+          17,
+          10,
+          7
+        ]
+      }
+    },
+    {
+      "id": "memorial-desk/arrival",
+      "range": [
+        96,
+        104
+      ],
+      "lensMm": 36,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          5,
+          7,
+          11
+        ],
+        "targetOffset": [
+          0,
+          3.5,
+          0
+        ],
+        "from": [
+          13,
+          9,
+          14
+        ]
+      }
+    },
+    {
+      "id": "memorial-desk/paper",
+      "range": [
+        104,
+        111
+      ],
+      "lensMm": 37,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -2,
+          6.5,
+          8
+        ],
+        "targetOffset": [
+          0,
+          3.5,
+          0
+        ],
+        "from": [
+          3,
+          8,
+          7
+        ]
+      }
+    },
+    {
+      "id": "memorial-desk/pullback",
+      "range": [
+        111,
+        115
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -7,
+          9,
+          16
+        ],
+        "targetOffset": [
+          0,
+          3.5,
+          0
+        ],
+        "from": [
+          -2,
+          6.5,
+          8
+        ]
+      }
+    },
+    {
+      "id": "decision/threshold",
+      "range": [
+        115,
+        126
+      ],
+      "lensMm": 36,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -5,
+          6,
+          11
+        ],
+        "targetOffset": [
+          0,
+          3.5,
+          0
+        ],
+        "from": [
+          -11,
+          8,
+          15
+        ]
+      }
+    },
+    {
+      "id": "decision/seal",
+      "range": [
+        126,
+        135
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -3,
+          5.5,
+          6
+        ],
+        "targetOffset": [
+          -2,
+          3.5,
+          -0.5
+        ],
+        "from": [
+          -5,
+          6,
+          8
+        ]
+      }
+    },
+    {
+      "id": "branch-choice/approach",
+      "range": [
+        135,
+        145
+      ],
+      "lensMm": 30,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          10,
+          6,
+          23
+        ],
+        "targetOffset": [
+          -4,
+          4,
+          4
+        ],
+        "from": [
+          24,
+          11,
+          32
+        ]
+      }
+    },
+    {
+      "id": "branch-choice/shore",
+      "range": [
+        145,
+        155
+      ],
+      "lensMm": 28,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          20,
+          7,
+          -9
+        ],
+        "targetOffset": [
+          12,
+          3,
+          -31
+        ],
+        "from": [
+          28,
+          8,
+          -5
+        ]
+      }
+    },
+    {
+      "id": "branch-choice/broadside",
+      "range": [
+        155,
+        165
+      ],
+      "lensMm": 29,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -4,
+          4,
           18
         ],
         "targetOffset": [
-          0,
+          -3,
+          4,
+          4
+        ],
+        "from": [
+          -19,
           3,
-          0
+          17
         ]
       }
     },
     {
-      "id": "branch-choice",
+      "id": "branch-choice/aftermath",
       "range": [
-        135,
+        165,
         176
       ],
-      "lensMm": 38,
+      "lensMm": 30,
       "focusDistance": 25,
       "aperture": 4,
       "camera": {
-        "from": [
-          30,
-          16,
-          44
-        ],
         "to": [
+          32,
           24,
-          13,
-          39
+          42
         ],
         "targetOffset": [
-          -1,
-          5,
-          0
+          -2,
+          3,
+          -6
+        ],
+        "from": [
+          10,
+          14,
+          28
         ]
       }
     },
     {
-      "id": "constraints",
+      "id": "constraints/battery",
       "range": [
         176,
-        211
+        184
       ],
-      "lensMm": 38,
-      "focusDistance": 26,
+      "lensMm": 31,
+      "focusDistance": 25,
       "aperture": 4,
       "camera": {
-        "from": [
-          35,
-          17,
-          46
-        ],
         "to": [
-          29,
-          14,
-          40
+          -33,
+          6,
+          -3
         ],
         "targetOffset": [
-          5,
-          5,
-          -1
-        ]
-      }
-    },
-    {
-      "id": "yangtze",
-      "range": [
-        211,
-        235
-      ],
-      "lensMm": 37,
-      "focusDistance": 40,
-      "aperture": 5.6,
-      "camera": {
+          -28,
+          3,
+          -22
+        ],
         "from": [
-          29,
-          19,
-          49
-        ],
-        "to": [
-          22,
-          16,
-          43
-        ],
-        "targetOffset": [
-          -1,
-          5,
+          -42,
+          7,
           1
         ]
       }
     },
     {
-      "id": "treaty",
+      "id": "constraints/supplies",
       "range": [
-        235,
-        252
+        184,
+        192
       ],
-      "lensMm": 43,
-      "focusDistance": 17,
-      "aperture": 2.8,
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
       "camera": {
-        "from": [
-          16,
-          13,
-          30
-        ],
         "to": [
-          12,
-          11,
-          26
+          -4,
+          8,
+          3
         ],
         "targetOffset": [
-          0,
-          3,
-          0
+          -2,
+          1,
+          -10
+        ],
+        "from": [
+          -13,
+          10,
+          6
         ]
       }
     },
     {
-      "id": "reflection",
+      "id": "constraints/ship",
       "range": [
-        252,
-        270
+        192,
+        202
       ],
-      "lensMm": 45,
-      "focusDistance": 36,
-      "aperture": 5.6,
+      "lensMm": 30,
+      "focusDistance": 25,
+      "aperture": 4,
       "camera": {
-        "from": [
-          20,
-          13,
-          28
-        ],
         "to": [
-          28,
-          17,
-          36
+          15,
+          4,
+          20
+        ],
+        "targetOffset": [
+          14,
+          4,
+          7
+        ],
+        "from": [
+          -3,
+          3,
+          19
+        ]
+      }
+    },
+    {
+      "id": "constraints/retreat",
+      "range": [
+        202,
+        211
+      ],
+      "lensMm": 30,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          49,
+          25,
+          55
+        ],
+        "targetOffset": [
+          4,
+          3,
+          -5
+        ],
+        "from": [
+          33,
+          15,
+          38
+        ]
+      }
+    },
+    {
+      "id": "yangtze/bow",
+      "range": [
+        211,
+        218
+      ],
+      "lensMm": 29,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          10,
+          4,
+          22
+        ],
+        "targetOffset": [
+          -3,
+          5,
+          8
+        ],
+        "from": [
+          16,
+          3,
+          22
+        ]
+      }
+    },
+    {
+      "id": "yangtze/fleet",
+      "range": [
+        218,
+        225
+      ],
+      "lensMm": 31,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -6,
+          18,
+          41
+        ],
+        "targetOffset": [
+          7,
+          4,
+          12
+        ],
+        "from": [
+          -21,
+          12,
+          33
+        ]
+      }
+    },
+    {
+      "id": "yangtze/city",
+      "range": [
+        225,
+        231
+      ],
+      "lensMm": 28,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          50,
+          10,
+          -2
+        ],
+        "targetOffset": [
+          43,
+          5,
+          -30
+        ],
+        "from": [
+          58,
+          15,
+          6
+        ]
+      }
+    },
+    {
+      "id": "yangtze/pressure",
+      "range": [
+        231,
+        235
+      ],
+      "lensMm": 29,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          39,
+          26,
+          49
+        ],
+        "targetOffset": [
+          12,
+          4,
+          0
+        ],
+        "from": [
+          26,
+          20,
+          35
+        ]
+      }
+    },
+    {
+      "id": "treaty/establish",
+      "range": [
+        235,
+        241
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          10,
+          8,
+          18
         ],
         "targetOffset": [
           0,
-          2,
-          0
+          3,
+          3
+        ],
+        "from": [
+          18,
+          11,
+          24
+        ]
+      }
+    },
+    {
+      "id": "treaty/document",
+      "range": [
+        241,
+        247
+      ],
+      "lensMm": 37,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          0,
+          7,
+          10
+        ],
+        "targetOffset": [
+          0,
+          3.3,
+          3
+        ],
+        "from": [
+          5,
+          8,
+          11
+        ]
+      }
+    },
+    {
+      "id": "treaty/silence",
+      "range": [
+        247,
+        252
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -12,
+          10,
+          22
+        ],
+        "targetOffset": [
+          0,
+          3.3,
+          3
+        ],
+        "from": [
+          0,
+          7,
+          10
+        ]
+      }
+    },
+    {
+      "id": "reflection/harbour",
+      "range": [
+        252,
+        261
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          -10,
+          9,
+          40
+        ],
+        "targetOffset": [
+          -5,
+          4,
+          -8
+        ],
+        "from": [
+          -27,
+          5,
+          32
+        ]
+      }
+    },
+    {
+      "id": "reflection/world",
+      "range": [
+        261,
+        270
+      ],
+      "lensMm": 32,
+      "focusDistance": 25,
+      "aperture": 4,
+      "camera": {
+        "to": [
+          39,
+          31,
+          75
+        ],
+        "targetOffset": [
+          0,
+          3,
+          -10
+        ],
+        "from": [
+          -10,
+          9,
+          40
         ]
       }
     }

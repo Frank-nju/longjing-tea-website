@@ -1,4 +1,5 @@
 import './style.css';
+import { Soundscape } from './soundtrack';
 import { FilmRuntime } from '@efe/core';
 import { createDaoguangFilm, type DaoguangState, type Decision, type FilmMode } from '../../../films/daoguang/src/index';
 import { chapters } from '../../../films/daoguang/src/story';
@@ -27,150 +28,10 @@ const configured = createDaoguangFilm();
 const runtime = new FilmRuntime<DaoguangState>(configured.film, canvas);
 (window as Window & { __DAOGUANG_RUNTIME__?: FilmRuntime<DaoguangState> }).__DAOGUANG_RUNTIME__ = runtime;
 
-const cues = [
-  { time: 17, tone: 155, duration: 0.65 },
-  { time: 66, tone: 68, duration: 1.1 },
-  { time: 96, tone: 240, duration: 0.42 },
-  { time: 135, tone: 118, duration: 0.7 },
-  { time: 176, tone: 78, duration: 0.9 },
-  { time: 211, tone: 92, duration: 0.7 },
-  { time: 239, tone: 190, duration: 0.5 },
-];
-
-class Soundscape {
-  #context: AudioContext | null = null;
-  #master: GainNode | null = null;
-  #ambience: GainNode | null = null;
-  #noiseBuffer: AudioBuffer | null = null;
-  #loop: AudioBufferSourceNode | null = null;
-  #active = new Set<AudioScheduledSourceNode>();
-  #lastTime = 0;
-  #nextCue = 0;
-  #muted = false;
-
-  async enable(): Promise<void> {
-    if (!this.#context) {
-      this.#context = new AudioContext({ latencyHint: 'playback' });
-      this.#master = this.#context.createGain();
-      this.#master.gain.value = this.#muted ? 0 : 0.72;
-      this.#master.connect(this.#context.destination);
-      this.#ambience = this.#context.createGain();
-      this.#ambience.gain.value = 0;
-      this.#ambience.connect(this.#master);
-      const length = this.#context.sampleRate * 3;
-      this.#noiseBuffer = this.#context.createBuffer(1, length, this.#context.sampleRate);
-      const channel = this.#noiseBuffer.getChannelData(0);
-      let seed = 1840;
-      for (let i = 0; i < length; i++) {
-        seed = (seed * 1664525 + 1013904223) >>> 0;
-        channel[i] = ((seed / 4294967296) * 2 - 1) * 0.32;
-      }
-    }
-    await this.#context.resume();
-  }
-
-  setMuted(muted: boolean): void {
-    this.#muted = muted;
-    if (this.#master && this.#context) this.#master.gain.setTargetAtTime(muted ? 0 : 0.72, this.#context.currentTime, 0.04);
-  }
-
-  reset(time: number): void {
-    this.#stopSources();
-    this.#lastTime = time;
-    this.#nextCue = cues.findIndex((cue) => cue.time >= time);
-    if (this.#nextCue < 0) this.#nextCue = cues.length;
-  }
-
-  sync(time: number, playing: boolean, scene: string): void {
-    if (!this.#context || this.#context.state !== 'running') {
-      this.#lastTime = time;
-      return;
-    }
-    if (!playing) {
-      this.#stopSources();
-      this.#lastTime = time;
-      return;
-    }
-    if (!this.#loop && this.#noiseBuffer && this.#ambience) {
-      const source = this.#context.createBufferSource();
-      const filter = this.#context.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = scene === 'court' || scene === 'treaty' ? 360 : 780;
-      source.buffer = this.#noiseBuffer;
-      source.loop = true;
-      source.connect(filter).connect(this.#ambience);
-      source.start();
-      this.#loop = source;
-    }
-    const levels: Record<string, number> = { coast: 0.19, dinghai: 0.2, map: 0.08, court: 0.055, branch: 0.11, constraints: 0.16, yangtze: 0.2, treaty: 0.06, reflection: 0.1 };
-    this.#ambience?.gain.setTargetAtTime(levels[scene] ?? 0.1, this.#context.currentTime, 0.45);
-    if (time < this.#lastTime - 0.08 || time - this.#lastTime > 2) {
-      this.#stopEffects();
-      this.#nextCue = cues.findIndex((cue) => cue.time >= time);
-      if (this.#nextCue < 0) this.#nextCue = cues.length;
-      this.#lastTime = time;
-      return;
-    }
-    while (this.#nextCue < cues.length && cues[this.#nextCue].time <= time + 0.02) {
-      const cue = cues[this.#nextCue++];
-      if (cue.time >= this.#lastTime - 0.02) this.#playCue(cue.tone, cue.duration);
-    }
-    this.#lastTime = time;
-  }
-
-  #playCue(frequency: number, duration: number): void {
-    if (!this.#context || !this.#master || !this.#noiseBuffer) return;
-    const now = this.#context.currentTime;
-    const oscillator = this.#context.createOscillator();
-    const envelope = this.#context.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, now);
-    oscillator.frequency.exponentialRampToValueAtTime(Math.max(34, frequency * 0.72), now + duration);
-    envelope.gain.setValueAtTime(0.0001, now);
-    envelope.gain.exponentialRampToValueAtTime(0.11, now + 0.035);
-    envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    oscillator.connect(envelope).connect(this.#master);
-    oscillator.start(now);
-    oscillator.stop(now + duration + 0.04);
-    this.#active.add(oscillator);
-    oscillator.onended = () => this.#active.delete(oscillator);
-
-    if (frequency > 130) {
-      const source = this.#context.createBufferSource();
-      const filter = this.#context.createBiquadFilter();
-      const noiseGain = this.#context.createGain();
-      source.buffer = this.#noiseBuffer;
-      filter.type = 'bandpass';
-      filter.frequency.value = frequency > 200 ? 1500 : 680;
-      filter.Q.value = 0.6;
-      noiseGain.gain.setValueAtTime(0.04, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
-      source.connect(filter).connect(noiseGain).connect(this.#master);
-      source.start(now);
-      source.stop(now + 0.28);
-      this.#active.add(source);
-      source.onended = () => this.#active.delete(source);
-    }
-  }
-
-  #stopEffects(): void {
-    for (const source of this.#active) {
-      try { source.stop(); } catch { /* already ended */ }
-    }
-    this.#active.clear();
-  }
-
-  #stopSources(): void {
-    this.#stopEffects();
-    if (this.#loop) {
-      try { this.#loop.stop(); } catch { /* already ended */ }
-      this.#loop = null;
-    }
-    this.#ambience?.gain.setTargetAtTime(0, this.#context?.currentTime ?? 0, 0.04);
-  }
-}
-
 const sound = new Soundscape();
+soundButton.textContent = '声音：准备中';
+void sound.prepare().then(() => { soundButton.textContent = '声音：开'; }).catch(() => { soundButton.textContent = '声音：准备失败'; });
+(window as unknown as { __DAOGUANG_SOUND__: Soundscape }).__DAOGUANG_SOUND__ = sound;
 let started = false;
 let gateShown = false;
 let mute = false;
@@ -225,7 +86,7 @@ function selectRoute(route: Decision): void {
   modeLabel.textContent = `互动路线 ${route} / 课堂模拟`;
 }
 
-function begin(mode: FilmMode): void {
+async function begin(mode: FilmMode): Promise<void> {
   currentMode = mode;
   configured.setMode(mode);
   configured.setDecision(null);
@@ -235,16 +96,20 @@ function begin(mode: FilmMode): void {
   modeChip.classList.remove('hidden');
   modeChip.textContent = mode === 'linear' ? '线性正片 / 史实编排' : '互动版 / 决策为课堂模拟';
   modeLabel.textContent = mode === 'linear' ? '线性正片' : '互动版';
+  runtime.pause();
   runtime.seek(0);
-  runtime.play();
-  void sound.enable();
   sound.reset(0);
-  playButton.textContent = 'Ⅱ';
+  playButton.textContent = '…';
+  try { await sound.enable(); } catch { soundButton.textContent = '声音：不可用'; }
+  if (started && runtime.now() === 0) { runtime.play(); playButton.textContent = 'Ⅱ'; }
 }
 
 function refresh(time: number): void {
   const state = runtime.state;
   const beat = branchBeat(time, state.route);
+  document.querySelector('.subtitle')!.classList.toggle('chapter-opening', time-beat.time < 4);
+  const fade = Math.max(time<2?1-time/2:0,time>267?(time-267)/3:0);
+  (document.querySelector('.viewport') as HTMLElement).style.setProperty('--film-fade',String(fade));
   scrub.value = String(time);
   scrub.style.setProperty('--played', `${time / runtime.duration * 100}%`);
   clockLabel.textContent = format(time);
@@ -265,7 +130,7 @@ function refresh(time: number): void {
   });
   const playing = runtime.clock.playing;
   playButton.textContent = playing ? 'Ⅱ' : '▶';
-  sound.sync(time, playing, state.scene);
+  sound.sync(time, playing, state.scene, state.route);
   if (currentMode === 'interactive' && time >= 135 && time < 176 && !configured.getDecision() && !gateShown) {
     gateShown = true;
     runtime.pause();
