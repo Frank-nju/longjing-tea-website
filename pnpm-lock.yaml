@@ -40,6 +40,8 @@ importers:
         specifier: workspace:*
         version: link:../../films/daoguang
 
+  apps/daoguang-cinema: {}
+
   apps/studio:
     dependencies:
       '@efe/audio':
