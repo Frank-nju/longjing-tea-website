@@ -24,3 +24,7 @@ https://github.com/nbrosowsky/tonejs-instruments
 https://creativecommons.org/licenses/by/3.0/
 
 纸声、脚步、雨滴与炮声是程序合成拟音，不是现场采录。尚未经过最终混音验收。
+
+## 虎门场景补绘
+
+`humen.webp`：2026-09-25 生成原创虎门珠江口环境绘景，浏览器 Canvas 缩至 1400px 并以 WebP 0.82 质量编码。仅作为 1839 年虎门销烟段的艺术化可视化，不宣称为历史现场复原。完整提示词见 `image-prompts.json`。

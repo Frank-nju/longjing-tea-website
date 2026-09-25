@@ -66,8 +66,12 @@ export class FilmSound {
         gain.gain.setValueAtTime(.00001,at);gain.gain.exponentialRampToValueAtTime(volume,at+.025);gain.gain.exponentialRampToValueAtTime(.00001,at+duration);source.connect(filter).connect(gain).connect(stereo).connect(master);source.start(at);source.stop(at+duration);
       };
       const tap=(at:number,freq:number,volume:number,duration=.12)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(freq,at);o.frequency.exponentialRampToValueAtTime(freq*.5,at+duration);g.gain.setValueAtTime(volume,at);g.gain.exponentialRampToValueAtTime(.00001,at+duration);o.connect(g).connect(master);o.start(at);o.stop(at+duration);};
+      const waterDrop=(at:number,freq:number,volume:number,pan=0)=>{const o=ctx.createOscillator(),g=ctx.createGain(),st=ctx.createStereoPanner();o.type='sine';o.frequency.setValueAtTime(freq,at);o.frequency.exponentialRampToValueAtTime(freq*.62,at+.11);st.pan.value=pan;g.gain.setValueAtTime(.00001,at);g.gain.linearRampToValueAtTime(volume,at+.006);g.gain.exponentialRampToValueAtTime(.00001,at+.17);o.connect(g).connect(st).connect(master);o.start(at);o.stop(at+.18);};
+      const woodScrape=(at:number,pan:number)=>{rustle(at,.18,.04,420,pan);tap(at,118,.045,.2);};
       if(key==='main'){
         for(const t of [2,35,40,75,82.1,83,87.2,89,90.5,92,93.5,101.4,111.3,118,128,131,186,189,192,236,248])rustle(t,.4,.07,1700,-.2);
+        for(const [t,f,p] of [[22.9,680,-.42],[23.65,530,-.38],[25.4,740,-.3],[27.1,590,-.22],[29.8,810,-.18],[32.4,620,-.1]] as const)waterDrop(t,f,.018,p);
+        for(const [t,p] of [[24.2,-.25],[28.1,.08],[31.2,.25]] as const)woodScrape(t,p);
         for(let t=77;t<82;t+=.47){tap(t,105,.085);tap(t+.18,85,.06);}
         for(let t=77;t<82;t+=.18)tap(t,800+rnd()*1100,.004,.025);
         for(const t of cannonTimes){tap(t,62,.24,.8);rustle(t,.25,.24,480,.25);rustle(t+.1,1.2,.14,140,-.3);}

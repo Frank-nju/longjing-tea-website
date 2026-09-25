@@ -4,6 +4,7 @@ const assets = {
   court: new URL('../../../films/daoguang/assets/cinema/court.webp', import.meta.url).href,
   courier: new URL('../../../films/daoguang/assets/cinema/courier.webp', import.meta.url).href,
   river: new URL('../../../films/daoguang/assets/cinema/river.webp', import.meta.url).href,
+  humen: new URL('../../../films/daoguang/assets/cinema/humen.webp', import.meta.url).href,
 };
 const W = 1600, H = 900;
 export class FilmArt {
@@ -81,6 +82,34 @@ export class FilmArt {
       const u=(time*.63+i*.213)%1;c.strokeStyle=`rgba(172,196,210,${(1-u)*.1})`;c.beginPath();c.ellipse((i*153)%W,640+i%5*40,3+u*20,1+u*4,0,0,Math.PI*2);c.stroke();
     }c.restore();
   }
+  private humen(time:number,u:number):void {
+    const c=this.ctx;
+    this.plate('humen',1.035+u*.055,-u*18,-u*4);
+    c.save();
+    c.beginPath();c.moveTo(718,431);c.lineTo(1268,432);c.lineTo(1400,613);c.lineTo(724,616);c.closePath();c.clip();
+    for(let i=0;i<48;i++){
+      const y=441+i*3.45+Math.sin(time*.72+i*.63)*1.4;
+      const x=740+(i*83)%590+Math.sin(time*.42+i)*9;
+      const width=18+(i*47)%145;
+      c.globalAlpha=.025+(i%4)*.014;c.strokeStyle=i%3===0?'#d7dfd8':'#70817e';c.lineWidth=.6+(i%5)*.18;
+      c.beginPath();c.moveTo(x,y);c.bezierCurveTo(x+width*.3,y+Math.sin(time+i)*1.3,x+width*.7,y-Math.sin(time*.7+i)*1.1,x+width,y+Math.sin(time+i*.2));c.stroke();
+    }
+    c.restore();
+    c.save();
+    const mist=c.createLinearGradient(0,190,0,430);mist.addColorStop(0,'#d7d4c900');mist.addColorStop(.55,'#d7d4c914');mist.addColorStop(1,'#d7d4c900');
+    c.fillStyle=mist;c.fillRect(0,185,W,250);
+    for(let i=0;i<5;i++){
+      const x=(i*367+time*5)%1900-120;const y=260+(i%3)*35;
+      const haze=c.createRadialGradient(x,y,5,x,y,180);haze.addColorStop(0,'#d8d8d21a');haze.addColorStop(1,'#d8d8d200');c.fillStyle=haze;c.fillRect(x-180,y-70,360,140);
+    }
+    c.restore();
+    c.save();c.globalAlpha=.25;
+    for(let i=0;i<22;i++){
+      const sway=Math.sin(time*.7+i*.42)*3.2,x=12+i*23,y=900-(i%5)*7;
+      c.strokeStyle=i%2?'#242b1d':'#a0a17b';c.lineWidth=.7+i%3*.3;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x-4,y-24,x+sway,y-58-i%4*9);c.stroke();
+    }
+    c.restore();
+  }
   private river(time:number,u:number):void {
     const c=this.ctx;this.plate('river',1.035+u*.035,-u*12,0);
     c.save();c.globalAlpha=.13;
@@ -97,7 +126,7 @@ export class FilmArt {
     let layer=layerAt(time);if(route)layer=route==='A'?'paper':'courier';
     if(layer==='sea'){this.canvas.style.opacity='0';return;}
     this.canvas.style.opacity='1';
-    if(layer==='river'){this.river(time,u);}
+    if(layer==='river'){if(shot.id==='S03')this.humen(time,u);else this.river(time,u);}
     else if(layer==='courier'){
       const t=route?branchTime:local;
       if(!route&&(t<3||t>=8)){
