@@ -1,10 +1,30 @@
 import './style.css';
 import { FilmRuntime } from '@efe/core';
-import { createCinemaFilm, layerAt, shotAt, type Route } from './cut';
+import { createCinemaFilm, layerAt, shotAt, smooth, type Route } from './cut';
 import { FilmArt } from './art';
 import { FilmSound } from './audio';
 
 const element=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
+const storyBeats:Record<string,{from:number;to:number;period:string;seal:string;heading:string;copy:string}>={
+  S03:{from:1.1,to:8.8,period:'1839 · 虎门',seal:'史实与归纳',heading:'虎门销烟',copy:'禁烟维护国家利益，但并未终止英国以武力扩大在华利益的企图。'},
+  S06:{from:.7,to:6.3,period:'1840 · 七月 · 定海',seal:'史实',heading:'战争越过广东',copy:'英军进攻定海，战事出现在更北方的海岸。'},
+  S08:{from:.7,to:8.8,period:'军情递送 · 驿路',seal:'叙事意象',heading:'消息仍在途中',copy:'城池得失可以发生在一天之内；奏报，却要经过一站又一站。'},
+  S09:{from:1.3,to:10.2,period:'1840 · 京师',seal:'解释性归纳',heading:'奏折抵达御案',copy:'海上的战争成了一行行文字；文字到了，战场却仍在改变。'},
+  S11:{from:.8,to:9.2,period:'判断时刻',seal:'历史解释',heading:'剿与抚',copy:'主战与议和的反复，不是脱离时间、兵力和消息的选择题。'},
+  S14:{from:.7,to:6.1,period:'1841 · 东南海岸',seal:'史实概述',heading:'战事沿海岸扩展',copy:'次年，清军在浙东的反攻仍未扭转战局。'},
+  S19:{from:.7,to:7.4,period:'1842 · 镇江',seal:'史实概述',heading:'长江战事逼近腹地',copy:'战争沿长江继续推进，京杭方向受到威胁。'},
+  S21:{from:.7,to:7.5,period:'1842 · 南京',seal:'史实',heading:'《南京条约》签订',copy:'割地、赔款与通商条款，写下战争的代价。'},
+  S22:{from:.8,to:7.4,period:'战后回望',seal:'叙事意象',heading:'奏报之外',copy:'文字留下战场的痕迹，也留下抵达时已经过去的时间。'},
+};
+function renderStoryText(time:number,branch:Route|null):boolean{
+  const root=element<HTMLElement>('storyText');
+  const shot=shotAt(time),beat=storyBeats[shot.id],local=time-shot.start;
+  if(!started||branch||!beat||local<beat.from||local>beat.to){root.hidden=true;root.style.setProperty('--story-alpha','0');return false;}
+  const fadeIn=smooth((local-beat.from)/.65),fadeOut=smooth((beat.to-local)/.8),alpha=Math.min(fadeIn,fadeOut);
+  root.hidden=alpha<.005;root.style.setProperty('--story-alpha',String(alpha));
+  for(const [id,value] of [['storyPeriod',beat.period],['storySeal',beat.seal],['storyHeading',beat.heading],['storyCopy',beat.copy]] as const){const node=element<HTMLElement>(id);if(node.textContent!==value)node.textContent=value;}
+  return alpha>.04;
+}
 const screen=element<HTMLElement>('screen'),cover=element<HTMLElement>('cover');
 const choice=element<HTMLElement>('choice'),branchEnd=element<HTMLElement>('branchEnd');
 const seek=element<HTMLInputElement>('seek'),caption=element<HTMLElement>('caption');
@@ -47,9 +67,10 @@ function render():void{
   const local=route?branchNow():time;
   if(route&&local>=18&&branchPlaying){pause();branchEnd.hidden=false;}
   art.draw(time,route,local);
+  const storyActive=renderStoryText(time,route);
   const playing=route?branchPlaying:runtime.clock.playing;
   sound.sync(local,started&&playing,route);
-  const text=started?sound.caption(local,route):'';
+  const text=started&&!storyActive?sound.caption(local,route):'';
   if(caption.textContent!==text)caption.textContent=text;
   const [a,b]=range();seek.min=route?'0':String(a);seek.max=route?'18':String(b);seek.value=String(local);
   element('clock').textContent=`${format(route?local:time-a)} / ${format(route?18:b-a)}`;
